@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "932723311624",
+    "firebase_url": "https://som-project-83ddb-default-rtdb.firebaseio.com",
+    "project_id": "som-project-83ddb",
+    "storage_bucket": "som-project-83ddb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:932723311624:android:8271e4702d36350cb7bdbd",
+        "android_client_info": {
+          "package_name": "CapStoneDisign.som"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "932723311624-j7ucie8gnjmftu2d8ope9pmo43rsmcnr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "CapStoneDisign.som",
+            "certificate_hash": "885aef61f4ca701505564a4d5e5ed3aeb6a3c905"
+          }
+        },
+        {
+          "client_id":"932723311624-qkkrc63rd44j550ttl5bij74l016h8ks.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCZ_cNpYEXfTNMgdoK73rFpqq5EVDf3Uog"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "932723311624-qkkrc63rd44j550ttl5bij74l016h8ks.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
