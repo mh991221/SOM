@@ -59,7 +59,7 @@ class LoginActivity:AppCompatActivity() {
             if(auth.currentUser == null){
                 auth.signInWithEmailAndPassword(email,password)
                     .addOnCompleteListener { task->
-                        if(task.isSuccessful.not()){
+                        if(task.isSuccessful){
                             successLogin()
                             Log.d("LoginActivity","로그인 성공")
                         }else{
