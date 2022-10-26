@@ -4,26 +4,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="#cccccc">
+    android:background="@color/som_background">
 
     <ImageView
         android:id="@+id/headerIcon"
         android:layout_width="match_parent"
         android:layout_height="200dp"
+        android:layout_marginTop="50dp"
+        android:src="@drawable/som_icon"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:src="@drawable/som_icon" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/headerTitleTextView"
         app:layout_constraintTop_toBottomOf="@id/headerIcon"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:paddingTop="20dp"
+        android:paddingTop="15dp"
         android:text="@string/som"
         android:textSize="20sp"
+        android:textStyle="bold"
         android:gravity="center"
+        android:textColor="@color/title_color"
+        android:fontFamily="@font/lee_seoyun"
         android:layout_width="0dp"
         android:layout_height="wrap_content"/>
 
@@ -31,10 +35,11 @@
         app:layout_constraintTop_toBottomOf="@id/headerTitleTextView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:padding="15dp"
+        android:padding="10dp"
         android:gravity="center"
         android:text="@string/som_subtitle"
         android:textSize="12sp"
+        android:fontFamily="@font/ef_diary"
         android:layout_width="0dp"
         android:layout_height="wrap_content"/>
 

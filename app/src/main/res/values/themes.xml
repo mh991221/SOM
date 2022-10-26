@@ -16,4 +16,13 @@
         <item name="android:statusBarColor">#33d59f9f</item>
         <!-- Customize your theme here. -->
     </style>
+    
+    <style name="EditText" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorAccent">@color/title_color</item>
+        <item name="colorControlNormal">@color/hint_color</item>
+    </style>
+
+    <style name="CalenderFontStyle" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="fontFamily">@font/ef_diary</item>
+    </style>
 </resources>

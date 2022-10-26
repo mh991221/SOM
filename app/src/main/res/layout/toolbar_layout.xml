@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:backgroundTint="@color/som_toolbar"
     android:minHeight="?attr/actionBarSize"
-    android:background="@drawable/bottom_sheet_layout">
+    android:background="@drawable/background_sheet_layout">
 
     <TextView
         android:layout_width="wrap_content"
@@ -13,8 +13,9 @@
         android:layout_gravity="center"
         android:text="@string/toolbar_text"
         android:textColor="@color/white"
-        android:textSize="22sp"
-        android:textStyle="bold" />
+        android:textSize="30dp"
+        android:textStyle="bold"
+        android:fontFamily="@font/lee_seoyun"/>
 
 
 </androidx.appcompat.widget.Toolbar>

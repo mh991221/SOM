@@ -3,14 +3,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/sign_up_background">
+    android:background="@color/som_background">
 
     <TextView
         android:id="@+id/signUpTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/sign_up"
-        android:textSize="24sp"
+        android:textColor="@color/title_color"
+        android:textSize="35dp"
+        android:textStyle="bold"
+        android:fontFamily="@font/lee_seoyun"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -25,6 +28,7 @@
         android:layout_marginTop="30dp"
         android:layout_marginEnd="75dp"
         android:hint="이름"
+        android:theme="@style/EditText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/signUpTextView"
@@ -38,6 +42,7 @@
         android:layout_marginTop="30dp"
         android:layout_marginEnd="75dp"
         android:hint="email"
+        android:theme="@style/EditText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/signUpNameEditText" />
@@ -50,6 +55,7 @@
         android:layout_marginTop="30dp"
         android:layout_marginEnd="75dp"
         android:hint="비밀번호"
+        android:theme="@style/EditText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/signUpEmailEditText" />
@@ -62,12 +68,13 @@
         android:layout_marginTop="30dp"
         android:layout_marginEnd="75dp"
         android:hint="전화번호"
+        android:theme="@style/EditText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/signUpPasswordEditText" />
 
     <Button
-        android:backgroundTint="#4A57E866"
+        android:backgroundTint="@color/login_button"
         android:id="@+id/signUpButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -75,7 +82,8 @@
         android:layout_marginTop="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/sign_up"
-        android:textColor="@color/hint_color"/>
+        android:text="@string/input_complete"
+        android:textColor="@color/white"
+        android:fontFamily="@font/ef_diary"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

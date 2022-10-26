@@ -7,8 +7,11 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="som_toolbar">#77FBBB</color>
-    <color name="som_login_background">#F8E274</color>
+    <color name="som_toolbar">#FFC0CB</color>
+    <color name="som_background">#FFF0F5</color>
     <color name="hint_color">#918A8A</color>
     <color name="sign_up_background">#01F4E0</color>
+
+    <color name="login_button">#FF9CBB</color>
+    <color name="title_color">#FF7A85</color>
 </resources>
