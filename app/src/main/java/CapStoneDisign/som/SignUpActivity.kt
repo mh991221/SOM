@@ -2,6 +2,7 @@ package CapStoneDisign.som
 
 import CapStoneDisign.som.DBKey.Companion.DB_USERS
 import CapStoneDisign.som.Model.UserModel
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -35,6 +36,10 @@ class SignUpActivity:AppCompatActivity() {
         findViewById(R.id.signUpButton)
     }
 
+    private val backButton: Button by lazy{
+        findViewById(R.id.backButton)
+    }
+
     private val auth: FirebaseAuth by lazy{
         Firebase.auth
     }
@@ -46,6 +51,10 @@ class SignUpActivity:AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.sign_up_layout)
+
+        backButton.setOnClickListener {
+            finish()
+        }
 
         signUpButton.setOnClickListener {
             val name = signUpNameEditText.text?.toString().orEmpty()

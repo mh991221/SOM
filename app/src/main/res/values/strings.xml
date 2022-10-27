@@ -1,11 +1,11 @@
 <resources>
     <string name="app_name">SOM</string>
-    <string name="calendarTitle">달력 보기</string>
-    <string name="toolbar_text">Som</string>
+    <string name="calendarTitle">달력</string>
+    <string name="toolbar_text">SOM</string>
     <string name="account_info_icon">계정 정보</string>
     <string name="setting_icon">설정</string>
     <string name="diary_icon">우리 일기</string>
-    <string name="som">Som</string>
+    <string name="som">SOM</string>
     <string name="som_subtitle">우리들의 이야기</string>
     <string name="email_address_hint">email address</string>
     <string name="password_hint">password</string>

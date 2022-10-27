@@ -86,4 +86,18 @@
         android:textColor="@color/white"
         android:fontFamily="@font/ef_diary"/>
 
+    <Button
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="@color/login_button"
+        android:fontFamily="@font/ef_diary"
+        android:text="뒤로 가기"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.258"
+        app:layout_constraintStart_toEndOf="@+id/signUpButton"
+        app:layout_constraintTop_toBottomOf="@id/signUpPhoneNumberEditText" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
