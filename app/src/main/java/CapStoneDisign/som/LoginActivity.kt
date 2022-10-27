@@ -10,9 +10,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
 class LoginActivity:AppCompatActivity() {
+
 
     private val loginEmailEditText: EditText by lazy{
         findViewById(R.id.loginEmailEditText)
@@ -58,10 +61,11 @@ class LoginActivity:AppCompatActivity() {
             val password = passwordEditText.text.toString()
             if(auth.currentUser == null){
                 auth.signInWithEmailAndPassword(email,password)
-                    .addOnCompleteListener { task->
+                    .addOnCompleteListener(this) { task->
                         if(task.isSuccessful){
                             successLogin()
                             Log.d("LoginActivity","로그인 성공")
+                            finish()
                         }else{
                             Log.d("LoginActivity","로그인 실패")
                             Toast.makeText(this,"로그인에 실패했습니다. 이메일이나 패스워드를 확인해주세요",Toast.LENGTH_LONG).show()
@@ -85,10 +89,13 @@ class LoginActivity:AppCompatActivity() {
             Toast.makeText(this,"로그인에 실패했습니다.",Toast.LENGTH_SHORT).show()
             return
         }
-        finish()
     }
 
     override fun onBackPressed() {
 //        super.onBackPressed()
     }
+
+
+
+
 }

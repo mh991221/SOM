@@ -54,12 +54,12 @@ class SignUpActivity:AppCompatActivity() {
             val phoneNumber = signUpPhoneNumberEditText.text?.toString().orEmpty()
 
             if(emptyCheck(name, email, password, phoneNumber)){
-                val model = UserModel(name, email, password, phoneNumber)
+                val model = UserModel(name, email, password, phoneNumber, null)
 
                 auth.createUserWithEmailAndPassword(email, password)
                     .addOnCompleteListener{ task ->
                         if(task.isSuccessful){
-                            userDB.push().setValue(model)
+                            userDB.child(auth.currentUser?.uid.orEmpty()).setValue(model)
                             Toast.makeText(this,"회원가입에 성공했습니다. 로그인 버튼을 통해 로그인해주세요", Toast.LENGTH_LONG).show()
                             finish()
                         }else{

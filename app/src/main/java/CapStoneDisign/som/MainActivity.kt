@@ -1,5 +1,6 @@
 package CapStoneDisign.som
 
+import CapStoneDisign.som.Model.UserModel
 import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
@@ -17,10 +18,21 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
+
+    private val userDB: DatabaseReference by lazy{
+        Firebase.database.reference.child(DBKey.DB_USERS)
+    }
+
     private val mapView: MapView by lazy{
         findViewById(R.id.mapView)
     }
@@ -43,6 +55,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
     private lateinit var map: GoogleMap
 
+    var updateMap = HashMap<String, Any>()
+
+    private var count: Boolean = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_drawer_layout)
@@ -56,6 +72,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
         mapView.getMapAsync(this)
 
+        checkGroup()
         initToolBar()
         navigationView.setNavigationItemSelectedListener(this)
     }
@@ -145,4 +162,24 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         super.onDestroy()
         mapView.onDestroy()
     }
+
+    private fun checkGroup(){
+        val currentGroup = userDB.child(getCurrentUserID())
+        currentGroup.addValueEventListener(object : ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val userModel = snapshot.getValue<UserModel>()
+                if(userModel?.groupID == null && count){
+                    val dlg = GroupDialog(this@MainActivity)
+                    dlg.start()
+                    count = false
+                    return
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+    private fun getCurrentUserID(): String{
+        return auth.currentUser?.uid.orEmpty()
+    }
+
 }
