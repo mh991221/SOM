@@ -8,7 +8,7 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="som_toolbar">#FFC0CB</color>
-    <color name="som_background">#FFF0F5</color>
+    <color name="som_background">#FFFFFFFF</color>
     <color name="hint_color">#918A8A</color>
     <color name="sign_up_background">#01F4E0</color>
 
