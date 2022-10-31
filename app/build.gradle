@@ -54,6 +54,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-database-ktx:20.1.0'
     implementation 'com.naver.maps:map-sdk:3.12.0'
 
+    implementation "androidx.work:work-runtime-ktx:2.7.1"
+
     implementation "androidx.room:room-runtime:$room_version"
     annotationProcessor "androidx.room:room-compiler:$room_version"
     // To use Kotlin annotation processing tool (kapt)

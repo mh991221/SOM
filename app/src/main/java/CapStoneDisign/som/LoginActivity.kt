@@ -1,5 +1,6 @@
 package CapStoneDisign.som
 
+import CapStoneDisign.som.Model.UserModel
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -10,12 +11,19 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 
 class LoginActivity:AppCompatActivity() {
 
+    private val userDB: DatabaseReference by lazy {
+        Firebase.database.reference.child(DBKey.DB_USERS)
+    }
 
     private val loginEmailEditText: EditText by lazy{
         findViewById(R.id.loginEmailEditText)
@@ -37,6 +45,7 @@ class LoginActivity:AppCompatActivity() {
         Firebase.auth
     }
 
+    private var count: Boolean = true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login_layout)
@@ -65,6 +74,7 @@ class LoginActivity:AppCompatActivity() {
                         if(task.isSuccessful){
                             successLogin()
                             Log.d("LoginActivity","로그인 성공")
+                            checkGroup()
                             finish()
                         }else{
                             Log.d("LoginActivity","로그인 실패")
@@ -96,6 +106,25 @@ class LoginActivity:AppCompatActivity() {
     }
 
 
+    private fun checkGroup() {
+        val currentGroup = userDB.child(getCurrentUserID())
+        currentGroup.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val userModel = snapshot.getValue<UserModel>()
+                if (userModel?.groupID == null && count) {
+                    val dlg = GroupDialog(this@LoginActivity)
+                    dlg.start()
+                    count = false
+                    return
+                }
+            }
 
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
+    private fun getCurrentUserID(): String {
+        return auth.currentUser?.uid.orEmpty()
+    }
 
 }
