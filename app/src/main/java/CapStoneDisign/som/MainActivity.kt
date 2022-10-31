@@ -125,8 +125,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 for ((i, location) in locationResult.locations.withIndex()) {
                     Log.d("location1: ", "${location.latitude}, ${location.longitude}")
                     setLastLocation(location)
-                    val intent = Intent(this@MainActivity, BackgroundLocationUpdateService::class.java)
-                    startService(intent)
+//                    val intent = Intent(this@MainActivity, BackgroundLocationUpdateService::class.java)
+//                    startService(intent)
                 }
             }
         }
