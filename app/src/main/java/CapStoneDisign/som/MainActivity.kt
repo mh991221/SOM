@@ -3,18 +3,11 @@ package CapStoneDisign.som
 import CapStoneDisign.som.Model.UserModel
 import android.content.Intent
 import android.os.Bundle
-import android.view.Gravity
 import android.view.MenuItem
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.MapView
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -25,9 +18,13 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.*
+import com.naver.maps.map.util.FusedLocationSource
+import com.naver.maps.map.widget.LocationButtonView
 
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : AppCompatActivity(), OnMapReadyCallback,NavigationView.OnNavigationItemSelectedListener {
 
     private val userDB: DatabaseReference by lazy{
         Firebase.database.reference.child(DBKey.DB_USERS)
@@ -53,11 +50,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         Firebase.auth
     }
 
-    private lateinit var map: GoogleMap
+    private val currentLocationButton: LocationButtonView by lazy{
+        findViewById(R.id.currentLocationButton)
+    }
+
+    private lateinit var naverMap: NaverMap
 
     var updateMap = HashMap<String, Any>()
 
     private var count: Boolean = true
+
+    private lateinit var locationSource: FusedLocationSource
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,6 +85,47 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24)
         supportActionBar?.setDisplayShowTitleEnabled(false)
+    }
+
+    override fun onMapReady(map: NaverMap) {
+        naverMap = map
+
+        naverMap.maxZoom = 18.0
+        naverMap.minZoom = 10.0
+
+//        val cameraUpdate = CameraUpdate.scrollTo(LatLng(350.0, 127.027512))
+//
+//        naverMap.moveCamera(cameraUpdate)
+
+        val uiSetting = naverMap.uiSettings
+        uiSetting.isLocationButtonEnabled = false
+
+        currentLocationButton.map = naverMap
+
+        locationSource = FusedLocationSource(this@MainActivity, LOCATION_PERMISSION_REQUEST_CODE)
+        naverMap.locationSource = locationSource
+
+
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
+            return
+        }
+
+        if (locationSource.onRequestPermissionsResult(requestCode, permissions, grantResults)) {
+            if (!locationSource.isActivated) {
+                naverMap.locationTrackingMode = LocationTrackingMode.None
+            }
+            return
+        }
+
+        naverMap.locationTrackingMode = LocationTrackingMode.Follow
     }
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean{
@@ -109,27 +153,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             }
         }
         return super.onOptionsItemSelected(item)
-    }
-
-    override fun onMapReady(googleMap: GoogleMap) {
-        map = googleMap
-        val myLocation = LatLng(37.654601,127.060530)
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation))
-        googleMap.moveCamera(CameraUpdateFactory.zoomTo(10f))
-
-        mapSetting(map)
-    }
-
-    private fun mapSetting(map: GoogleMap){
-
-
-        map.setMinZoomPreference(6.0f)
-        map.setMaxZoomPreference(14.0f)
-        map.setPadding(0,0,0,150)
-
-        map.uiSettings.isZoomControlsEnabled = true
-        map.uiSettings.isRotateGesturesEnabled = true
-        map.uiSettings.isZoomGesturesEnabled = true
     }
 
 
@@ -181,5 +204,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     private fun getCurrentUserID(): String{
         return auth.currentUser?.uid.orEmpty()
     }
+
+    companion object {
+        private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+    }
+
 
 }

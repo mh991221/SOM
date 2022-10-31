@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity" >
 
-    <com.google.android.gms.maps.MapView
+    <com.naver.maps.map.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,6 +14,13 @@
     <include layout="@layout/toolbar_layout"/>
 
     <include layout="@layout/calendar_bottom_sheet"/>
+
+    <com.naver.maps.map.widget.LocationButtonView
+        android:id="@+id/currentLocationButton"
+        android:layout_gravity="center|start"
+        android:layout_width="wrap_content"
+        android:layout_margin="12dp"
+        android:layout_height="wrap_content"/>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
