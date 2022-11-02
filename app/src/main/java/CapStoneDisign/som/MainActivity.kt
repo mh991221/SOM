@@ -1,7 +1,7 @@
 package CapStoneDisign.som
 
-import CapStoneDisign.som.Model.UserModel
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.Bundle
@@ -16,12 +16,8 @@ import com.google.android.gms.location.*
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
 import com.google.firebase.ktx.Firebase
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
@@ -32,6 +28,7 @@ import com.naver.maps.map.widget.LocationButtonView
 class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     NavigationView.OnNavigationItemSelectedListener {
 
+    var context: Context? = null
     private val userDB: DatabaseReference by lazy {
         Firebase.database.reference.child(DBKey.DB_USERS)
     }
@@ -70,6 +67,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_drawer_layout)
+        context = this
 
         if (auth.currentUser == null) {
             val intent = Intent(this, LoginActivity::class.java)
@@ -234,6 +232,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
     }
+
 
 
 }

@@ -70,12 +70,11 @@ class LoginActivity:AppCompatActivity() {
             val password = passwordEditText.text.toString()
             if(auth.currentUser == null){
                 auth.signInWithEmailAndPassword(email,password)
-                    .addOnCompleteListener(this) { task->
+                    .addOnCompleteListener{ task->
                         if(task.isSuccessful){
                             successLogin()
                             Log.d("LoginActivity","로그인 성공")
                             checkGroup()
-                            finish()
                         }else{
                             Log.d("LoginActivity","로그인 실패")
                             Toast.makeText(this,"로그인에 실패했습니다. 이메일이나 패스워드를 확인해주세요",Toast.LENGTH_LONG).show()
