@@ -168,8 +168,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.accountInfoIcon -> Toast.makeText(this, "account Clicked", Toast.LENGTH_SHORT)
-                .show()
+            R.id.accountInfoIcon -> {
+                val intent = Intent(this, AccountInfoActivity::class.java)
+                startActivity(intent)
+            }
             R.id.diaryIcon -> Toast.makeText(this, "diary Clicked", Toast.LENGTH_SHORT).show()
             R.id.settingIcon -> Toast.makeText(this, "account Clicked", Toast.LENGTH_SHORT).show()
         }

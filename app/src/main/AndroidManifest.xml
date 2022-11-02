@@ -38,6 +38,7 @@
         </activity>
         <activity android:name=".SignUpActivity"/>
         <activity android:name=".LoginActivity"/>
+        <activity android:name=".AccountInfoActivity"/>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyARyBEH8ukA9zcYbl9lRT4LrLX0mbpn-1k"/>
