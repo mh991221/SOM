@@ -4,6 +4,7 @@ package CapStoneDisign.som
 // import android.os.Build.VERSION_CODES.R
 import CapStoneDisign.som.Model.UserModel
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.location.Location
@@ -96,6 +97,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     private lateinit var naverMap: NaverMap
 
+    private var isTracking: Int = 0
+    private var groupID: String?= null
 
     private lateinit var locationSource: FusedLocationSource
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -131,9 +134,36 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             val dlg = DateQRDialog(this)
             dlg.start()
             dlg.setOnOKClickedListener{ content ->
-                if(content.compareTo("intent") === 0){
+                if(content.compareTo("intent") == 0){
                     val intent = Intent(this, QrCodeActivity::class.java)
-                    startActivity(intent)
+                    startActivityForResult(intent,486486)
+                }
+            }
+        }
+
+        val currUser = userDB.child(auth.currentUser!!.uid)
+        currUser.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                userModel = snapshot.getValue<UserModel>()
+                groupID = userModel?.groupID
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                486486 -> {
+                    Log.d("QRCODEREQUESTED1", "$groupID")
+
+                    val contents = data!!.getStringExtra("groupID")
+                    Log.d("QRCODEREQUESTED1", "$contents")
+                    if(data!!.getStringExtra("groupID").toString().compareTo(groupID!!) == 0){
+                        isTracking = 1
+                        Log.d("QRCODEREQUESTED1", "$isTracking")
+                    }
                 }
             }
         }
