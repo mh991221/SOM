@@ -11,4 +11,5 @@
     <string name="password_hint">password</string>
     <string name="login">로그인</string>
     <string name="sign_up">회원가입</string>
+    <string name="dateButton">데이트 시작</string>
 </resources>

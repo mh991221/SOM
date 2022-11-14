@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:background="@color/som_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_margin="8dp">
+
+        <ImageView
+            android:id="@+id/QRImageView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/scanQRButton"
+                android:layout_width="30dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:text="QR 스캔"
+                android:backgroundTint="@color/login_button"
+                android:fontFamily="@font/ef_diary"/>
+            <Button
+                android:id="@+id/createQRButton"
+                android:layout_width="30dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/login_button"
+                android:text="QR 생성하기"
+                android:fontFamily="@font/ef_diary"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>

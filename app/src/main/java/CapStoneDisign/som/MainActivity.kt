@@ -1,25 +1,24 @@
 package CapStoneDisign.som
 
 
+// import android.os.Build.VERSION_CODES.R
 import CapStoneDisign.som.Model.UserModel
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.os.Build
-// import android.os.Build.VERSION_CODES.R
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.view.MenuItem
+import android.widget.Button
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.gms.location.*
-import com.google.android.gms.tasks.Task
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -29,21 +28,15 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.QuerySnapshot
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.getField
-import com.google.firebase.firestore.ktx.toObject
 import com.google.firebase.ktx.Firebase
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
 import com.naver.maps.map.overlay.PathOverlay
 import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.widget.LocationButtonView
-import java.lang.Double
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback,
@@ -54,12 +47,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     //DB에 올릴 경로 좌표들의 리스트
     var routes = mutableListOf(LatLng(0.0, 0.0))
+
     //DB에서 받아온 경로의 좌표들 담아둘 리스트
     var memory = mutableListOf(LatLng(0.0, 0.0))
+
     //현재 기록중인지 체크용
     var checkWritingOrNot = 0
+
     //현재 사용자 정보 받아오기 용
     var userModel: UserModel? = null
+
     // 경로 그리기 위해 필요한 애. 얘가 담고 있는 정보로 경로를 그리게 된다.
     var path = PathOverlay()
 
@@ -91,6 +88,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     private val currentLocationButton: LocationButtonView by lazy {
         findViewById(R.id.currentLocationButton)
+    }
+
+    private val dateButton: Button by lazy {
+        findViewById(R.id.dateButton)
     }
 
     private lateinit var naverMap: NaverMap
@@ -125,6 +126,17 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24)
         supportActionBar?.setDisplayShowTitleEnabled(false)
+
+        dateButton.setOnClickListener {
+            val dlg = DateQRDialog(this)
+            dlg.start()
+            dlg.setOnOKClickedListener{ content ->
+                if(content.compareTo("intent") === 0){
+                    val intent = Intent(this, QrCodeActivity::class.java)
+                    startActivity(intent)
+                }
+            }
+        }
     }
 
     override fun onMapReady(map: NaverMap) {
@@ -224,10 +236,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
                 // 참 미스테리하죠잉 왜 처음 누를 때는 get("routes")가 널이면서 두번째부터는 제대로 받아오는 것일까잉
                 // 이것도 위치정보가 처음에 바로 안 뜨는 거랑 좀 비슷한 상황일까???
-                db.collection(userModel?.groupID.toString()).document(LocalDate.now().toString()).get()
+                db.collection(userModel?.groupID.toString()).document(LocalDate.now().toString())
+                    .get()
                     .addOnSuccessListener { document ->
                         if (document != null) {
-                            Log.d("MyTAG", "DocumentSnapshot data: ${document.id} ${document.get("route")}")
+                            Log.d(
+                                "MyTAG",
+                                "DocumentSnapshot data: ${document.id} ${document.get("route")}"
+                            )
                         } else {
                             Log.d("MyTAG", "No such document")
                         }
@@ -245,21 +261,35 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                         userModel = snapshot.getValue<UserModel>()
 
                         //컬렉션: 그룹ID, 다큐먼트: 날짜와 시간, 내용: 경로들
-                        db.collection(userModel?.groupID.toString()).document(LocalDate.now().toString())
+                        db.collection(userModel?.groupID.toString())
+                            .document(LocalDate.now().toString())
                             .set(course, SetOptions.merge())
                             .addOnSuccessListener {
-                                Log.d("Mylog", "DocumentSnapshot successfully written!") }
-                            .addOnFailureListener { e -> Log.w("MyLog", "Error writing document", e) }
+                                Log.d("Mylog", "DocumentSnapshot successfully written!")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w(
+                                    "MyLog",
+                                    "Error writing document",
+                                    e
+                                )
+                            }
                     }
+
                     override fun onCancelled(error: DatabaseError) {}
                 })
             }
             R.id.memIcon -> {
-                db.collection(userModel?.groupID.toString()).document(LocalDate.now().toString()).get()
+                db.collection(userModel?.groupID.toString()).document(LocalDate.now().toString())
+                    .get()
                     .addOnSuccessListener { document ->
                         if (document != null) {
-                            var coord: MutableList<LatLng> = document.get("route") as MutableList<LatLng>
-                            Log.d("MyTAG", "DocumentSnapshot data: ${document.id} ${document.get("route")}")
+                            var coord: MutableList<LatLng> =
+                                document.get("route") as MutableList<LatLng>
+                            Log.d(
+                                "MyTAG",
+                                "DocumentSnapshot data: ${document.id} ${document.get("route")}"
+                            )
 
                             if (coord.size > 3) {
                                 path.coords = coord
@@ -325,7 +355,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     }
 
 
-
     private fun getCurrentUserID(): String {
         return auth.currentUser?.uid.orEmpty()
     }
@@ -333,7 +362,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
     }
-
 
 
 }
