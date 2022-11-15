@@ -206,8 +206,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                     Log.d("location1: ", "${location.latitude}, ${location.longitude}")
                     if (checkWritingOrNot == 1) {
                         routes.add(LatLng(location.latitude, location.longitude))
-                        path.coords = routes
-                        path.map = naverMap
+                        if(routes.size>=3){
+                            path.coords = routes
+                            path.map = naverMap
+                        }
                         routes_d.add(location.latitude)
                         routes_d.add(location.longitude)
                     }
@@ -229,8 +231,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     fun setLastLocation(location: Location) {
         val myLocation = LatLng(location.latitude, location.longitude)
 
-        val cameraUpdate = CameraUpdate.scrollTo(myLocation)
-        naverMap.moveCamera(cameraUpdate)
+
         naverMap.maxZoom = 18.0
         naverMap.minZoom = 5.0
 
