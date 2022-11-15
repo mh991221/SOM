@@ -111,7 +111,7 @@ class GroupDialog(context: Context) {
 
     private fun createGroup(){
         val uid = getCurrentUserID()
-        val model = GroupModel(uid,"null")
+        val model = GroupModel(uid,"null",0.0,null,null,null)
         groupDB.child(auth.currentUser?.uid.orEmpty()).setValue(model)
         Toast.makeText(dlg.context,"그룹이 생성되었습니다. 다시 로그인해주세요",Toast.LENGTH_LONG).show()
         updateUserMap.put("groupID",uid)

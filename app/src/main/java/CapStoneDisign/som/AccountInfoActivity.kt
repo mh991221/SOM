@@ -62,6 +62,7 @@ class AccountInfoActivity : AppCompatActivity() {
 
     var userModel: UserModel? = null
     var groupModel: GroupModel? = null
+    var count: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -94,6 +95,7 @@ class AccountInfoActivity : AppCompatActivity() {
             }
         }
         userDB.child(user).addValueEventListener(postListener)*/
+
 
         initPhoto()
         initGroup()
@@ -154,6 +156,14 @@ class AccountInfoActivity : AppCompatActivity() {
         val dateTextView = findViewById<TextView>(R.id.dateTextView)
         val startDateTextView = findViewById<TextView>(R.id.startDateTextView)
 
+
+        var currentGroup = Firebase.database.reference
+
+        var startDate:Double?=null
+
+
+
+
         val today = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY,0)
             set(Calendar.MINUTE,0)
@@ -161,11 +171,79 @@ class AccountInfoActivity : AppCompatActivity() {
             set(Calendar.MILLISECOND,0)
         }.timeInMillis
 
+        val curruser = userDB.child(user)
+        var groupID: String? = null
+        curruser.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                userModel = snapshot.getValue<UserModel>()
+
+                groupID = userModel?.groupID
+                currentGroup = groupDB.child(userModel?.groupID!!) // groupId에 접근
+                currentGroup.addValueEventListener(object : ValueEventListener{
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        groupModel = snapshot.getValue<GroupModel>()
+
+                        Log.d("checking a data", "${groupModel?.firstUserID}")
+                        startDate = groupModel?.startDate
+
+                        val year = groupModel?.year
+                        val month = groupModel?.month
+                        val dayOfMonth = groupModel?.dayOfMonth
+
+
+                        if(startDate != 0.0){
+                            val fewDaysInMillis = today - startDate!!
+                            val fewDays = (fewDaysInMillis/(24*60*60*1000) + 1).toInt()
+
+                            dateTextView.text = fewDays.toString()
+                        }
+
+                        if(year!=null && month!=null && dayOfMonth!=null){
+                            startDateTextView.text = "${year}.${month+1}.${dayOfMonth}~"
+                        }
+                    }
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+
+
+
+
         changeStartDateButton.setOnClickListener {
 
             val cal = Calendar.getInstance()
             val dateSetListener = DatePickerDialog.OnDateSetListener{_, year, month, dayOfMonth->
                 startDateTextView.text = "${year}.${month+1}.${dayOfMonth}~"
+                count = 0
+
+                curruser.addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        userModel = snapshot.getValue<UserModel>()
+
+                        groupID = userModel?.groupID
+                        currentGroup = groupDB.child(userModel?.groupID!!) // groupId에 접근
+                        currentGroup.addValueEventListener(object : ValueEventListener{
+                            override fun onDataChange(snapshot: DataSnapshot) {
+                                groupModel = snapshot.getValue<GroupModel>()
+
+                                Log.d("checking", "${groupID}")
+                                if(count == 0){
+                                    groupDB.child(groupID!!).child("year").setValue(year)
+                                    groupDB.child(groupID!!).child("month").setValue(month)
+                                    groupDB.child(groupID!!).child("dayOfMonth").setValue(dayOfMonth)
+                                    count = 1
+                                }
+
+                            }
+                            override fun onCancelled(error: DatabaseError) {}
+                        })
+                    }
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+
+
 
                 val startDay = Calendar.getInstance().apply {
                     set(Calendar.YEAR, year)
@@ -179,7 +257,7 @@ class AccountInfoActivity : AppCompatActivity() {
 
                 val fewDaysInMillis = today - startDay
                 val fewDays = fewDaysInMillis/(24*60*60*1000) + 1
-
+                groupDB.child(groupID!!).child("startDate").setValue(startDay)
                 dateTextView.text = fewDays.toString()
             }
             DatePickerDialog(this, dateSetListener, cal.get(Calendar.YEAR),cal.get(Calendar.MONTH),cal.get(Calendar.DAY_OF_MONTH)).show()
