@@ -50,17 +50,6 @@
         android:backgroundTint="#C426FD6E"
         />
 
-    <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/editPartnerPhotoButton"
-        android:layout_width="50dp"
-        android:layout_height="35dp"
-        android:text="수정"
-        android:textSize="11sp"
-        app:layout_constraintStart_toStartOf="@id/accountInfoImageViewPartner"
-        app:layout_constraintEnd_toEndOf="@id/accountInfoImageViewPartner"
-        app:layout_constraintTop_toBottomOf="@id/accountInfoImageViewPartner"
-        android:backgroundTint="#C426FD6E"
-        />
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/accountInfoImageViewPartner"
