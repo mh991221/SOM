@@ -46,11 +46,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     //Firestore 레퍼런스. 이거 써서 Firestore에 값 올리고 내린다.
     val db = Firebase.firestore
 
-    //DB에 올릴 경로 좌표들의 리스트
-    var routes = mutableListOf(LatLng(0.0, 0.0))
+    //현재 데이트 중인 경로 좌표들의 리스트
+    var routes = mutableListOf<LatLng>()
+
+    // DB에 넣어서 쓰려는 좌표값들 담아둘 더블리스트.
+    var routes_d = mutableListOf<Double>()
 
     //DB에서 받아온 경로의 좌표들 담아둘 리스트
-    var memory = mutableListOf(LatLng(0.0, 0.0))
+    var memory = mutableListOf<LatLng>()
 
     //현재 기록중인지 체크용
     var checkWritingOrNot = 0
@@ -203,6 +206,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                     Log.d("location1: ", "${location.latitude}, ${location.longitude}")
                     if (checkWritingOrNot == 1) {
                         routes.add(LatLng(location.latitude, location.longitude))
+                        path.coords = routes
+                        path.map = naverMap
+                        routes_d.add(location.latitude)
+                        routes_d.add(location.longitude)
                     }
                     setLastLocation(location)
 //                    val intent = Intent(this@MainActivity, BackgroundLocationUpdateService::class.java)
@@ -259,10 +266,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             R.id.settingIcon -> Toast.makeText(this, "account Clicked", Toast.LENGTH_SHORT).show()
             R.id.startIcon -> {
                 checkWritingOrNot = 1
-                routes.add(LatLng(0.0, 0.0))
             }
             R.id.endIcon -> {
                 checkWritingOrNot = 0
+                routes.add(LatLng(0.0, 0.0))
+                routes_d.add(0.0)
+                routes_d.add(0.0)
 
                 // 참 미스테리하죠잉 왜 처음 누를 때는 get("routes")가 널이면서 두번째부터는 제대로 받아오는 것일까잉
                 // 이것도 위치정보가 처음에 바로 안 뜨는 거랑 좀 비슷한 상황일까???
@@ -282,7 +291,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                         Log.d("MyTAG", "get failed with ", exception)
                     }
                 val course = hashMapOf(
-                    "route" to routes
+                    "route" to routes_d
                 )
 
                 val curruser = userDB.child(auth.currentUser!!.uid)
@@ -310,28 +319,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 })
             }
             R.id.memIcon -> {
-                db.collection(userModel?.groupID.toString()).document(LocalDate.now().toString())
-                    .get()
-                    .addOnSuccessListener { document ->
-                        if (document != null) {
-                            var coord: MutableList<LatLng> =
-                                document.get("route") as MutableList<LatLng>
-                            Log.d(
-                                "MyTAG",
-                                "DocumentSnapshot data: ${document.id} ${document.get("route")}"
-                            )
-
-                            if (coord.size > 3) {
-                                path.coords = coord
-                                path.map = naverMap
-                            }
-                        } else {
-                            Log.d("MyTAG", "No such document")
-                        }
-                    }
-                    .addOnFailureListener { exception ->
-                        Log.d("MyTAG", "get failed with ", exception)
-                    }
+                // 그래도 없으면 허전하니까 달아는 뒀음. 이 getMemory()에 매개변수로
+                // 불러오고 싶은 날짜 값을 스트링으로 넣어주면 됨.
+                // 날짜 값 형태는 2022-11-15 같은 형태인 건 아시져?!?!
+                getMemory(LocalDate.now().toString())
             }
         }
         return false
@@ -391,6 +382,35 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+    }
+
+    // date를 다큐먼트의 키 값으로 갖는 기록 불러옵니다.
+    private fun getMemory(date: String) {
+        db.collection(userModel?.groupID.toString()).document(date)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    var coord = document.get("route") as MutableList<Double>
+                    Log.d(
+                        "MyTAG",
+                        "DocumentSnapshot data: ${document.id} ${document.get("route")}"
+                    )
+                    if (coord.size >= 8) {
+                        memory.clear()
+                        for (i: Int in 0 until coord.size step(2)) {
+                            memory.add(LatLng(coord[i], coord[i+1]))
+                        }
+                        path.coords = memory
+                        path.map = naverMap
+                    }
+
+                } else {
+                    Log.d("MyTAG", "No such document")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.d("MyTAG", "get failed with ", exception)
+            }
     }
 
 
