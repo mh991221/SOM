@@ -141,8 +141,7 @@
         android:text="일째 만들어간 이야기"
         android:textSize="13sp"
         app:layout_constraintStart_toEndOf="@id/dateTextView"
-        app:layout_constraintTop_toTopOf="@id/dateTextView"
-        android:visibility="gone"/>
+        app:layout_constraintTop_toTopOf="@id/dateTextView" />
 
     <TextView
         android:id="@+id/emailIsHereTextView"
