@@ -7,6 +7,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.location.Location
 import android.os.Build
 import android.os.Bundle
@@ -14,9 +15,11 @@ import android.os.Looper
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
+import android.widget.CalendarView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.gms.location.*
@@ -34,6 +37,8 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.*
+import com.naver.maps.map.overlay.MultipartPathOverlay
+import com.naver.maps.map.overlay.MultipartPathOverlay.ColorPart
 import com.naver.maps.map.overlay.PathOverlay
 import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.widget.LocationButtonView
@@ -47,13 +52,18 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     val db = Firebase.firestore
 
     //현재 데이트 중인 경로 좌표들의 리스트
-    var routes = mutableListOf<LatLng>()
+    var routes = mutableListOf<MutableList<LatLng>>()
 
     // DB에 넣어서 쓰려는 좌표값들 담아둘 더블리스트.
-    var routes_d = mutableListOf<Double>()
+    var routesd = mutableListOf<Double>()
 
     //DB에서 받아온 경로의 좌표들 담아둘 리스트
-    var memory = mutableListOf<LatLng>()
+    var memory = mutableListOf<MutableList<LatLng>>()
+    // 경로 그릴때 필요한 색
+    var memcolor = mutableListOf<ColorPart>()
+
+    // DB에서 불러온 경로를 담아둘 버퍼. 여기 담다가 0, 0 나오면 끊고 path에 넣는 식으로 써먹을 예정.
+    var memBuf = mutableListOf<LatLng>()
 
     //현재 기록중인지 체크용
     var checkWritingOrNot = 0
@@ -62,7 +72,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     var userModel: UserModel? = null
 
     // 경로 그리기 위해 필요한 애. 얘가 담고 있는 정보로 경로를 그리게 된다.
-    var path = PathOverlay()
+    var path = MultipartPathOverlay()
 
     var context: Context? = null
 
@@ -98,6 +108,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         findViewById(R.id.dateButton)
     }
 
+    // 캘린더뷰 (날짜 선택해서 날짜값 받아오기 용
+    private val calender: CalendarView by lazy {
+        findViewById(R.id.calendarView)
+    }
+
     private lateinit var naverMap: NaverMap
 
     private var isTracking: Int = 0
@@ -121,6 +136,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         mapView.getMapAsync(this)
 
+        calender.setOnDateChangeListener { calender, year, month, dayOfMonth ->
+            // 아니 ㅅㅂ 왜 반환하는 달 값은 +1을 해줘야 하는 건대 ㅅㅂ ㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+            var day:String = "${year}-${month+1}-${dayOfMonth}"
+            Log.d("mylog", day)
+            getMemory(day)
+        }
 
         initToolBar()
         navigationView.setNavigationItemSelectedListener(this)
@@ -205,13 +226,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 for ((i, location) in locationResult.locations.withIndex()) {
                     Log.d("location1: ", "${location.latitude}, ${location.longitude}")
                     if (checkWritingOrNot == 1) {
-                        routes.add(LatLng(location.latitude, location.longitude))
-                        if(routes.size>=3){
-                            path.coords = routes
+
+                        routes[routes.lastIndex].add(LatLng(location.latitude, location.longitude))
+
+                        if(routes[routes.lastIndex].size>=3){
+                            path.coordParts = routes
                             path.map = naverMap
                         }
-                        routes_d.add(location.latitude)
-                        routes_d.add(location.longitude)
+                        routesd.add(location.latitude)
+                        routesd.add(location.longitude)
                     }
                     setLastLocation(location)
 //                    val intent = Intent(this@MainActivity, BackgroundLocationUpdateService::class.java)
@@ -266,13 +289,81 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             R.id.diaryIcon -> Toast.makeText(this, "diary Clicked", Toast.LENGTH_SHORT).show()
             R.id.settingIcon -> Toast.makeText(this, "account Clicked", Toast.LENGTH_SHORT).show()
             R.id.startIcon -> {
+                // 기록을 시작하기에 앞서 먼저 오늘 날짜의 기록을 DB에서 받아온 뒤에 거기에 기록을 덧붙여 나간다.
+                // 이렇게 하면 앱을 껐다가 다시 켜서 실행해도 이전 기록이 사라지는 일이 없다!!
+                db.collection(userModel?.groupID.toString()).document(LocalDate.now().toString())
+                    .get()
+                    .addOnSuccessListener { document ->
+                        if (document.get("route") != null) {
+                            routesd = document.get("route") as MutableList<Double>
+                            Log.d(
+                                "MyTAG",
+                                "DocumentSnapshot data: ${document.id} ${document.get("route")}"
+                            )
+                            if (routesd.size >= 8) {
+                                routes.clear()
+                                memBuf.clear()
+                                memcolor.clear()
+                                for (i: Int in 0 until routesd.size step(2)) {
+                                    // 일단 더블형이니까, != 0.0 쓰면 또 부동 소수점 특유의 빡치는 크기비교 나올 거 같아서
+                                    // 적당히 우리 나라에 있을 수 없는 좌표인 0.3 정도로 끊어둠. 이정도면 문제 생길 일 없지 않을까?
+                                    // 요는, 0.0을 토큰으로 쓰기 위해 이렇게 했다는 것이다.
+                                    if (routesd[i] >= 0.3 || routesd[i] <= -0.3) {
+                                        // memory.add(LatLng(coord[i], coord[i + 1]))
+                                        // 1. 0,0이 아닐 경우, 즉, 그려야 하는 좌표값일 경우
+                                        // memory에 아무것도 없으면 리스트 하나 만들어서 넣고,
+                                        // 뭐라도 하나 있으면 제일 뒤의 리스트에 값 넣는다.
+                                        memBuf.add(LatLng(routesd[i], routesd[i + 1]))
+                                    }
+                                    else {
+                                        // 0,0이 나왔을 경우, 즉, 리스트를 끊어줘야 할 경우
+                                        if (memBuf.size >= 3) {
+                                            routes.add(mutableListOf<LatLng>())
+                                            routes[routes.lastIndex].addAll(memBuf)
+                                            memBuf.clear()
+                                            memcolor.add(MultipartPathOverlay.ColorPart(Color.RED, Color.WHITE, Color.GRAY, Color.LTGRAY))
+                                        }
+                                    }
+                                }
+                                Log.d(
+                                    "MyTAG",
+                                    "memory data: $routes"
+                                )
+                                path.coordParts = routes
+                                path.colorParts = memcolor
+                                Log.d(
+                                    "MyTAG",
+                                    "찾아보자 오류!"
+                                )
+                                if (path.coordParts.size > 0) {
+                                    path.map = naverMap
+                                }
+                                Log.d(
+                                    "MyTAG",
+                                    "찾아보자 오류!!"
+                                )
+                            }
+                        }
+                        else {
+                            Log.d("MyTAG", "No such document")
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.d("MyTAG", "get failed with ", exception)
+                    }
+                // 새로이 적어나갈 경로를 위해 미리 만들어두는 것.
+                routes.add(mutableListOf<LatLng>())
+                memcolor.add(MultipartPathOverlay.ColorPart(Color.RED, Color.WHITE, Color.GRAY, Color.LTGRAY))
+                path.colorParts = memcolor
                 checkWritingOrNot = 1
+                Log.d("MyTAG", "기록 시작")
             }
             R.id.endIcon -> {
                 checkWritingOrNot = 0
-                routes.add(LatLng(0.0, 0.0))
-                routes_d.add(0.0)
-                routes_d.add(0.0)
+                // 이제 루츠에 굳이 0,0 넣을 필요는 없을 듯?
+                // routes[routes.lastIndex].add(LatLng(0.0, 0.0))
+                routesd.add(0.0)
+                routesd.add(0.0)
 
                 // 참 미스테리하죠잉 왜 처음 누를 때는 get("routes")가 널이면서 두번째부터는 제대로 받아오는 것일까잉
                 // 이것도 위치정보가 처음에 바로 안 뜨는 거랑 좀 비슷한 상황일까???
@@ -292,7 +383,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                         Log.d("MyTAG", "get failed with ", exception)
                     }
                 val course = hashMapOf(
-                    "route" to routes_d
+                    "route" to routesd
                 )
 
                 val curruser = userDB.child(auth.currentUser!!.uid)
@@ -323,7 +414,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 // 그래도 없으면 허전하니까 달아는 뒀음. 이 getMemory()에 매개변수로
                 // 불러오고 싶은 날짜 값을 스트링으로 넣어주면 됨.
                 // 날짜 값 형태는 2022-11-15 같은 형태인 건 아시져?!?!
+                Log.d("Mylog", "지금부터 시작")
                 getMemory(LocalDate.now().toString())
+                Log.d("Mylog", "찾아보자 오류!!!")
             }
         }
         return false
@@ -390,7 +483,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         db.collection(userModel?.groupID.toString()).document(date)
             .get()
             .addOnSuccessListener { document ->
-                if (document != null) {
+                if (document.get("route") != null) {
                     var coord = document.get("route") as MutableList<Double>
                     Log.d(
                         "MyTAG",
@@ -398,20 +491,56 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                     )
                     if (coord.size >= 8) {
                         memory.clear()
+                        memBuf.clear()
+                        memcolor.clear()
                         for (i: Int in 0 until coord.size step(2)) {
-                            memory.add(LatLng(coord[i], coord[i+1]))
+                            // 일단 더블형이니까, != 0.0 쓰면 또 부동 소수점 특유의 빡치는 크기비교 나올 거 같아서
+                            // 적당히 우리 나라에 있을 수 없는 좌표인 0.3 정도로 끊어둠. 이정도면 문제 생길 일 없지 않을까?
+                            // 요는, 0.0을 토큰으로 쓰기 위해 이렇게 했다는 것이다.
+                            if (coord[i] >= 0.3 || coord[i] <= -0.3) {
+                                // memory.add(LatLng(coord[i], coord[i + 1]))
+                                // 1. 0,0이 아닐 경우, 즉, 그려야 하는 좌표값일 경우
+                                // memory에 아무것도 없으면 리스트 하나 만들어서 넣고,
+                                // 뭐라도 하나 있으면 제일 뒤의 리스트에 값 넣는다.
+                                memBuf.add(LatLng(coord[i], coord[i + 1]))
+                            }
+                            else {
+                                // 0,0이 나왔을 경우, 즉, 리스트를 끊어줘야 할 경우
+                                if (memBuf.size >= 3) {
+                                    memory.add(mutableListOf<LatLng>())
+                                    memory[memory.lastIndex].addAll(memBuf)
+                                    memBuf.clear()
+                                    memcolor.add(MultipartPathOverlay.ColorPart(Color.RED, Color.WHITE, Color.GRAY, Color.LTGRAY))
+                                }
+                            }
                         }
-                        path.coords = memory
-                        path.map = naverMap
+                        Log.d(
+                            "MyTAG",
+                            "memory data: $memory"
+                        )
+                        path.coordParts = memory
+                        path.colorParts = memcolor
+                        Log.d(
+                            "MyTAG",
+                            "찾아보자 오류!"
+                        )
+                        if (path.coordParts.size > 0) {
+                            path.map = naverMap
+                        }
+                        Log.d(
+                            "MyTAG",
+                            "찾아보자 오류!!"
+                        )
                     }
-
-                } else {
+                }
+                else {
                     Log.d("MyTAG", "No such document")
                 }
             }
             .addOnFailureListener { exception ->
                 Log.d("MyTAG", "get failed with ", exception)
             }
+        Log.d("MyTAG", "여기서 끝나는 건가?!")
     }
 
 
