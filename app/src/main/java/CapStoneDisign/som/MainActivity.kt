@@ -531,6 +531,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 }
                 else {
                     Log.d("MyTAG", "No such document")
+                    path.map = null
                 }
 
                 if (document.get("marker") != null) {
