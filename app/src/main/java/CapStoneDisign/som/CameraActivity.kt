@@ -1,6 +1,8 @@
 package CapStoneDisign.som
 
 import CapStoneDisign.som.databinding.CameraLayoutBinding
+import android.Manifest
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +13,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.io.File
 import java.text.SimpleDateFormat
@@ -26,6 +29,12 @@ class CameraActivity:AppCompatActivity() {
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
 
+    val CAMERA_PERMISSION = arrayOf(Manifest.permission.CAMERA)
+    val CAMERA_PERMISSION_REQUEST = 100
+
+    val STORAGE_PERMISSION = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    val STORAGE_PERMISSION_REQUEST = 200
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = CameraLayoutBinding.inflate(layoutInflater)
@@ -33,6 +42,7 @@ class CameraActivity:AppCompatActivity() {
         setContentView(view)
 
         startCamera()
+        checkPermission(CAMERA_PERMISSION, CAMERA_PERMISSION_REQUEST)
 
         binding.cameraCaptureButton.setOnClickListener {
             takePhoto()
@@ -41,6 +51,49 @@ class CameraActivity:AppCompatActivity() {
         outputDirectory = getOutputDirectory()
 
         cameraExecutor = Executors.newSingleThreadExecutor()
+    }
+
+    fun checkPermission(permissions: Array<String>, permissionRequestNumber:Int){
+        val permissionResult = ContextCompat.checkSelfPermission(this, permissions[0])
+
+        when(permissionResult){
+            PackageManager.PERMISSION_GRANTED -> {
+                Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
+                // Go Main Function
+            }
+            PackageManager.PERMISSION_DENIED -> {
+                ActivityCompat.requestPermissions(this, permissions, permissionRequestNumber)
+            }
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        when(requestCode){
+            CAMERA_PERMISSION_REQUEST -> {
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    Toast.makeText(this, "Camera Permission Granted", Toast.LENGTH_SHORT).show()
+                    // Go Main Function
+                }else{
+                    Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_SHORT).show()
+                    // Finish() or Show Guidance on the need for permission
+                }
+            }
+            STORAGE_PERMISSION_REQUEST -> {
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    Toast.makeText(this, "Storage Permission Granted", Toast.LENGTH_SHORT).show()
+                    // Go Main Function
+                }else{
+                    Toast.makeText(this, "Storage Permission Denied", Toast.LENGTH_SHORT).show()
+                    // Finish() or Show Guidance on the need for permission
+                }
+            }
+        }
     }
     private fun takePhoto() {
         // Get a stable reference of the modifiable image capture use case
