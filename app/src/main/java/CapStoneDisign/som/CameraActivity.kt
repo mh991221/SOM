@@ -43,6 +43,7 @@ class CameraActivity:AppCompatActivity() {
 
         startCamera()
         checkPermission(CAMERA_PERMISSION, CAMERA_PERMISSION_REQUEST)
+        checkPermission(STORAGE_PERMISSION, STORAGE_PERMISSION_REQUEST)
 
         binding.cameraCaptureButton.setOnClickListener {
             takePhoto()
