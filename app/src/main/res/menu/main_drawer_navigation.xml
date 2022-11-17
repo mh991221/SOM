@@ -30,5 +30,10 @@
         android:icon="@drawable/ic_baseline_photo_camera_24"
         android:title="사진 찍기"/>
 
+    <item
+        android:id="@+id/markerIcon"
+        android:icon="@drawable/ic_baseline_photo_camera_24"
+        android:title="마커 찍기"/>
+
 
 </menu>
