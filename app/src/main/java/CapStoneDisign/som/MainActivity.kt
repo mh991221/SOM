@@ -426,7 +426,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             }
 
             R.id.cameraIcon ->{
-
+                val intent = Intent(this, CameraActivity::class.java)
+                startActivity(intent)
             }
         }
         return false
