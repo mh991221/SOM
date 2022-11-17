@@ -31,10 +31,5 @@
         android:icon="@drawable/ic_baseline_settings_24"
         android:title="기록완료"/>
 
-    <item
-        android:id="@+id/memIcon"
-        android:icon="@drawable/ic_baseline_settings_24"
-        android:title="받아오기"/>
-
 
 </menu>

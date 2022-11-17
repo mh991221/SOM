@@ -106,10 +106,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         findViewById(R.id.currentLocationButton)
     }
 
-    private val dateButton: Button by lazy {
-        findViewById(R.id.dateButton)
-    }
-
     // 캘린더뷰 (날짜 선택해서 날짜값 받아오기 용
     private val calender: CalendarView by lazy {
         findViewById(R.id.calendarView)
@@ -428,14 +424,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
                     override fun onCancelled(error: DatabaseError) {}
                 })
-            }
-            R.id.memIcon -> {
-                // 그래도 없으면 허전하니까 달아는 뒀음. 이 getMemory()에 매개변수로
-                // 불러오고 싶은 날짜 값을 스트링으로 넣어주면 됨.
-                // 날짜 값 형태는 2022-11-15 같은 형태인 건 아시져?!?!
-                Log.d("Mylog", "지금부터 시작")
-                getMemory(LocalDate.now().toString())
-                Log.d("Mylog", "찾아보자 오류!!!")
             }
         }
         return false
