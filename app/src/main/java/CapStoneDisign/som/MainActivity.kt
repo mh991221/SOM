@@ -413,6 +413,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 markers[markers.lastIndex].position = LatLng(tmp.latitude, tmp.longitude)
                 markers[markers.lastIndex].map = naverMap
             }
+            R.id.QRIcon ->{
+                val dlg = DateQRDialog(this)
+                dlg.start()
+                dlg.setOnOKClickedListener { content ->
+                    if(content.compareTo("intent") == 0){
+                        if(content.compareTo("intent") == 0){
+                            val intent = Intent(this, QrCodeActivity::class.java)
+                            startActivityForResult(intent,486486)
+                        }
+                    }
+
+                }
+            }
         }
         return false
     }
@@ -542,6 +555,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                         markers[markers.lastIndex].position = LatLng(markerPoints[i], markerPoints[i+1])
                         markers[markers.lastIndex].map = naverMap
                     }
+                }
+                else {
+                    Log.d("MyTAG", "lastIndex ${markers.lastIndex}")
+                    for (i: Int in 0 until markers.lastIndex) {
+                        markers[i].map = null
+                    }
+                    markers.clear()
                 }
             }
             .addOnFailureListener { exception ->
