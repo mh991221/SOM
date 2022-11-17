@@ -344,7 +344,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                             Log.d("MyTAG", "No such document")
                         }
 
+                        Log.d("MyTAG", "lastIndex ${markers.lastIndex}")
+                        for (i: Int in 0..markers.lastIndex) {
+                            markers[i].map = null
+                        }
+                        markers.clear()
                         if (document.get("marker") != null) {
+
                             markerPoints = document.get("marker") as MutableList<Double>
                             markers.clear()
                             for (i: Int in 0 until markerPoints.size step(2)) {
@@ -352,13 +358,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                 markers[markers.lastIndex].position = LatLng(markerPoints[i], markerPoints[i+1])
                                 markers[markers.lastIndex].map = naverMap
                             }
-                        }
-                        else {
-                            Log.d("MyTAG", "lastIndex ${markers.lastIndex}")
-                            for (i: Int in 0..markers.lastIndex) {
-                                markers[i].map = null
-                            }
-                            markers.clear()
                         }
                     }
                     .addOnFailureListener { exception ->
@@ -554,7 +553,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                     path.map = null
                 }
 
+                Log.d("MyTAG", "lastIndex ${markers.lastIndex}")
+                for (i: Int in 0..markers.lastIndex) {
+                    markers[i].map = null
+                }
+                markers.clear()
                 if (document.get("marker") != null) {
+
                     markerPoints = document.get("marker") as MutableList<Double>
                     markers.clear()
                     for (i: Int in 0 until markerPoints.size step(2)) {
@@ -562,13 +567,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                         markers[markers.lastIndex].position = LatLng(markerPoints[i], markerPoints[i+1])
                         markers[markers.lastIndex].map = naverMap
                     }
-                }
-                else {
-                    Log.d("MyTAG", "lastIndex ${markers.lastIndex}")
-                    for (i: Int in 0..markers.lastIndex) {
-                        markers[i].map = null
-                    }
-                    markers.clear()
                 }
             }
             .addOnFailureListener { exception ->
