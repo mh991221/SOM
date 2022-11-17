@@ -353,6 +353,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                 markers[markers.lastIndex].map = naverMap
                             }
                         }
+                        else {
+                            Log.d("MyTAG", "lastIndex ${markers.lastIndex}")
+                            for (i: Int in 0..markers.lastIndex) {
+                                markers[i].map = null
+                            }
+                            markers.clear()
+                        }
                     }
                     .addOnFailureListener { exception ->
                         Log.d("MyTAG", "get failed with ", exception)
@@ -558,7 +565,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 }
                 else {
                     Log.d("MyTAG", "lastIndex ${markers.lastIndex}")
-                    for (i: Int in 0 until markers.lastIndex) {
+                    for (i: Int in 0..markers.lastIndex) {
                         markers[i].map = null
                     }
                     markers.clear()
