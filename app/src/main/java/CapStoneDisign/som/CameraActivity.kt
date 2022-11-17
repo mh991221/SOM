@@ -20,11 +20,11 @@ import java.text.SimpleDateFormat
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class CameraActivity:AppCompatActivity() {
+class CameraActivity : AppCompatActivity() {
 
-    lateinit private var binding : CameraLayoutBinding
+    lateinit private var binding: CameraLayoutBinding
 
-    private var preview : Preview? = null
+    private var preview: Preview? = null
     private var imageCapture: ImageCapture? = null
     private lateinit var outputDirectory: File
     private lateinit var cameraExecutor: ExecutorService
@@ -32,7 +32,10 @@ class CameraActivity:AppCompatActivity() {
     val CAMERA_PERMISSION = arrayOf(Manifest.permission.CAMERA)
     val CAMERA_PERMISSION_REQUEST = 100
 
-    val STORAGE_PERMISSION = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    val STORAGE_PERMISSION = arrayOf(
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
     val STORAGE_PERMISSION_REQUEST = 200
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,10 +57,10 @@ class CameraActivity:AppCompatActivity() {
         cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
-    fun checkPermission(permissions: Array<String>, permissionRequestNumber:Int){
+    private fun checkPermission(permissions: Array<String>, permissionRequestNumber: Int) {
         val permissionResult = ContextCompat.checkSelfPermission(this, permissions[0])
 
-        when(permissionResult){
+        when (permissionResult) {
             PackageManager.PERMISSION_GRANTED -> {
                 Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
                 // Go Main Function
@@ -75,27 +78,28 @@ class CameraActivity:AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        when(requestCode){
+        when (requestCode) {
             CAMERA_PERMISSION_REQUEST -> {
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, "Camera Permission Granted", Toast.LENGTH_SHORT).show()
                     // Go Main Function
-                }else{
+                } else {
                     Toast.makeText(this, "Camera Permission Denied", Toast.LENGTH_SHORT).show()
                     // Finish() or Show Guidance on the need for permission
                 }
             }
             STORAGE_PERMISSION_REQUEST -> {
-                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Toast.makeText(this, "Storage Permission Granted", Toast.LENGTH_SHORT).show()
                     // Go Main Function
-                }else{
+                } else {
                     Toast.makeText(this, "Storage Permission Denied", Toast.LENGTH_SHORT).show()
                     // Finish() or Show Guidance on the need for permission
                 }
             }
         }
     }
+
     private fun takePhoto() {
         // Get a stable reference of the modifiable image capture use case
         val imageCapture = imageCapture ?: return
@@ -103,7 +107,8 @@ class CameraActivity:AppCompatActivity() {
         // Create time-stamped output file to hold the image
         val photoFile = File(
             outputDirectory,
-            newJpgFileName())
+            newJpgFileName()
+        )
 
         // Create output options object which contains file + metadata
         val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
@@ -155,16 +160,17 @@ class CameraActivity:AppCompatActivity() {
                     this,
                     cameraSelector,
                     preview,
-                    imageCapture)
+                    imageCapture
+                )
 
-            } catch(exc: Exception) {
+            } catch (exc: Exception) {
                 Log.d("CameraX-Debug", "Use case binding failed", exc)
             }
 
         }, ContextCompat.getMainExecutor(this))
     }
 
-    private fun newJpgFileName() : String {
+    private fun newJpgFileName(): String {
         val sdf = SimpleDateFormat("yyyyMMdd_HHmmss")
         val filename = sdf.format(System.currentTimeMillis())
         return "${filename}.jpg"
