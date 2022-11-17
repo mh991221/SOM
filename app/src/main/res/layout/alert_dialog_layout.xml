@@ -27,16 +27,7 @@
             android:theme="@style/EditText"
             android:fontFamily="@font/ef_diary"
             android:visibility="gone"/>
-        <Button
-            android:id="@+id/joinButton"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:text="그룹 참여"
-            android:fontFamily="@font/ef_diary"
-            android:visibility="gone"
-            android:backgroundTint="@color/login_button"
-            android:layout_gravity="center"
-            />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -57,6 +48,17 @@
                 android:backgroundTint="@color/login_button"
                 android:text="그룹에 들어가기"
                 android:fontFamily="@font/ef_diary"/>
+
+            <Button
+                android:id="@+id/joinButton"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:text="그룹 참여"
+                android:fontFamily="@font/ef_diary"
+                android:visibility="gone"
+                android:backgroundTint="@color/login_button"
+                android:layout_gravity="center"
+                />
 
         </LinearLayout>
         

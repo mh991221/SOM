@@ -5,6 +5,7 @@ import CapStoneDisign.som.DBKey.Companion.DB_USERS
 import CapStoneDisign.som.Model.GroupModel
 import android.app.Dialog
 import android.content.Context
+import android.util.Log
 import android.view.Window
 import android.widget.Button
 import android.widget.EditText
@@ -47,6 +48,7 @@ class GroupDialog(context: Context) {
     var updateUserMap = HashMap<String,Any>()
 
     fun start(){
+        Log.d("tlqkf","checking")
         dlg.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dlg.setContentView(R.layout.alert_dialog_layout)
         dlg.setCancelable(false)
@@ -71,6 +73,7 @@ class GroupDialog(context: Context) {
         alertDialogGroupCode.isVisible = true
         Toast.makeText(dlg.context,"그룹 코드를 입력해주세요",Toast.LENGTH_LONG).show()
 
+        joinGroupButton.isVisible = false
         joinButton.isVisible = true
 
         joinButton.setOnClickListener {

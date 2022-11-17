@@ -109,9 +109,12 @@ class LoginActivity:AppCompatActivity() {
         val currentGroup = userDB.child(getCurrentUserID())
         currentGroup.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+
                 val userModel = snapshot.getValue<UserModel>()
+                Log.d("tlqkf","${userModel?.email}, ${userModel?.groupID}")
                 if (userModel?.groupID == null && count) {
                     val dlg = GroupDialog(this@LoginActivity)
+                    Log.d("tlqkf","${userModel?.email}, ${userModel?.groupID}")
                     dlg.start()
                     count = false
                     return
