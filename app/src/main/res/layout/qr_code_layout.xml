@@ -56,11 +56,15 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="이 어플은 백그라운드에서 위치 값을 받고 있습니다"/>
+            android:text="사진을 촬영할 때 어플에 내장된 카메라를 사용하시면"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="배터리 사용에 유의해주세요!!\n"/>
+            android:text="나중에 일기 쓰실때 사진을 많이 찍은 장소를 보여드립니다!"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="많이 사용해주세요 ㅠㅠ\n"/>
 
         <TextView
             android:layout_width="wrap_content"

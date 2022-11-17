@@ -5,12 +5,6 @@
         android:id="@+id/accountInfoIcon"
         android:icon="@drawable/ic_baseline_person_24"
         android:title="@string/account_info_icon"/>
-
-    <item
-        android:id="@+id/diaryIcon"
-        android:icon="@drawable/ic_baseline_menu_book_24"
-        android:title="@string/diary_icon"/>
-
     <item
         android:id="@+id/settingIcon"
         android:icon="@drawable/ic_baseline_settings_24"
@@ -18,18 +12,23 @@
 
     <item
         android:id="@+id/startIcon"
-        android:icon="@drawable/ic_baseline_settings_24"
+        android:icon="@drawable/ic_baseline_menu_book_24"
         android:title="기록시작"/>
 
     <item
         android:id="@+id/QRIcon"
-        android:icon="@drawable/ic_baseline_settings_24"
+        android:icon="@drawable/ic_baseline_menu_book_24"
         android:title="QR코드"/>
 
     <item
         android:id="@+id/endIcon"
-        android:icon="@drawable/ic_baseline_settings_24"
+        android:icon="@drawable/ic_baseline_menu_book_24"
         android:title="기록완료"/>
+
+    <item
+        android:id="@+id/cameraIcon"
+        android:icon="@drawable/ic_baseline_photo_camera_24"
+        android:title="사진 찍기"/>
 
 
 </menu>

@@ -277,7 +277,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 val intent = Intent(this, AccountInfoActivity::class.java)
                 startActivity(intent)
             }
-            R.id.diaryIcon -> Toast.makeText(this, "diary Clicked", Toast.LENGTH_SHORT).show()
             R.id.settingIcon -> Toast.makeText(this, "account Clicked", Toast.LENGTH_SHORT).show()
             R.id.startIcon -> {
                 // 기록을 시작하기에 앞서 먼저 오늘 날짜의 기록을 DB에서 받아온 뒤에 거기에 기록을 덧붙여 나간다.
@@ -424,6 +423,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
                     override fun onCancelled(error: DatabaseError) {}
                 })
+            }
+
+            R.id.cameraIcon ->{
+
             }
         }
         return false
