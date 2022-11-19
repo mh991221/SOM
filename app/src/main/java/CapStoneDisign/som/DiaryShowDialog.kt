@@ -33,6 +33,7 @@ class DiaryShowDialog:AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.marker_dialog_layout)
 
         myDiaryTextView = findViewById(R.id.myDiaryTextView)
@@ -112,7 +113,5 @@ class DiaryShowDialog:AppCompatActivity() {
             .create()
             .show()
     }
-
-
 
 }

@@ -598,6 +598,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         if(overlay is Marker){
             Toast.makeText(this,"마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
             val intent = Intent(this, DiaryShowDialog::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
 
         }
