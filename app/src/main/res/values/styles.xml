@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="round_dialog_activity" parent="@style/Theme.AppCompat.DayNight.Dialog">
+        <item name="android:windowBackground">@drawable/dialog_radius_background</item>
+    </style>
+</resources>
