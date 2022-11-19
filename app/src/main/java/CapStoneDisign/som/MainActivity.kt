@@ -5,6 +5,7 @@ package CapStoneDisign.som
 import CapStoneDisign.som.Model.UserModel
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -14,12 +15,11 @@ import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.view.MenuItem
-import android.widget.Button
 import android.widget.CalendarView
 import android.widget.Toast
+import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.gms.location.*
@@ -40,14 +40,14 @@ import com.naver.maps.map.*
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.MultipartPathOverlay
 import com.naver.maps.map.overlay.MultipartPathOverlay.ColorPart
-import com.naver.maps.map.overlay.PathOverlay
+import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.widget.LocationButtonView
 import java.time.LocalDate
 
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback,
-    NavigationView.OnNavigationItemSelectedListener {
+    NavigationView.OnNavigationItemSelectedListener, Overlay.OnClickListener {
 
     //Firestore 레퍼런스. 이거 써서 Firestore에 값 올리고 내린다.
     val db = Firebase.firestore
@@ -151,10 +151,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             getMemory(day)
         }
 
+
         initToolBar()
         navigationView.setNavigationItemSelectedListener(this)
     }
-
 
     private fun initToolBar() {
         setSupportActionBar(toolbarLayout)
@@ -358,8 +358,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                             markers.clear()
                             for (i: Int in 0 until markerPoints.size step(2)) {
                                 markers.add(Marker())
+                                Log.d("logForMarker","checked")
                                 markers[markers.lastIndex].position = LatLng(markerPoints[i], markerPoints[i+1])
                                 markers[markers.lastIndex].map = naverMap
+                                markers[markers.lastIndex].onClickListener = this
                             }
                         }
                     }
@@ -434,6 +436,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 markers.add(Marker())
                 markers[markers.lastIndex].position = LatLng(tmp.latitude, tmp.longitude)
                 markers[markers.lastIndex].map = naverMap
+                markers[markers.lastIndex].onClickListener = this
             }
             R.id.QRIcon ->{
                 val dlg = DateQRDialog(this)
@@ -574,13 +577,14 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 }
                 markers.clear()
                 if (document.get("marker") != null) {
-
+                    Log.d("logForMarker","checked")
                     markerPoints = document.get("marker") as MutableList<Double>
                     markers.clear()
                     for (i: Int in 0 until markerPoints.size step(2)) {
                         markers.add(Marker())
                         markers[markers.lastIndex].position = LatLng(markerPoints[i], markerPoints[i+1])
                         markers[markers.lastIndex].map = naverMap
+                        markers[markers.lastIndex].onClickListener = this
                     }
                 }
             }
@@ -588,6 +592,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 Log.d("MyTAG", "get failed with ", exception)
             }
         Log.d("MyTAG", "여기서 끝나는 건가?!")
+    }
+
+    override fun onClick(overlay: Overlay): Boolean {
+        if(overlay is Marker){
+            Toast.makeText(this,"마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
+            val dlg = DiaryShowDialog(this)
+            dlg.start()
+
+        }
+        return true
     }
 
 

@@ -184,11 +184,6 @@ class AccountInfoActivity : AppCompatActivity() {
             override fun onCancelled(error: DatabaseError) {}
         })
 
-
-
-
-
-
     }
 
     private fun navigatePhotos(){

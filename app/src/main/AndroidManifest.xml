@@ -47,6 +47,7 @@
         <activity android:name=".QrCodeActivity"/>
         <activity android:name=".CameraActivity"/>
         <activity android:name=".SettingActivity"/>
+        <activity android:name=".DiaryShowDialog"/>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyARyBEH8ukA9zcYbl9lRT4LrLX0mbpn-1k"/>
