@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#9AEA8D8D">
+
+    <TextView
+        android:id="@+id/optionTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="30dp"
+        android:text="option"
+        android:textSize="30sp"/>
+
+    <TextView
+        android:id="@+id/markerOptionTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/optionTextView"
+        android:layout_marginTop="50dp"
+        android:text="마커 옵션"
+        android:textSize="15sp"/>
+
+    <Switch
+        android:id="@+id/photoZoneSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="포토존"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/markerOptionTextView"
+        android:layout_marginTop="20dp"
+        android:switchPadding="190dp"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <Switch
+        android:id="@+id/visitedPlaceSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="머물렀던 장소"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/photoZoneSwitch"
+        android:layout_marginTop="20dp"
+        android:switchPadding="150dp"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+    <Switch
+        android:id="@+id/paymentPlaceSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="결제했던 장소"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/visitedPlaceSwitch"
+        android:layout_marginTop="20dp"
+        android:switchPadding="150dp"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

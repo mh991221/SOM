@@ -283,7 +283,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 val intent = Intent(this, AccountInfoActivity::class.java)
                 startActivity(intent)
             }
-            R.id.settingIcon -> Toast.makeText(this, "account Clicked", Toast.LENGTH_SHORT).show()
+            R.id.settingIcon -> {
+                val intent = Intent(this, SettingActivity::class.java)
+                startActivity(intent)
+            }
             R.id.startIcon -> {
                 // 기록을 시작하기에 앞서 먼저 오늘 날짜의 기록을 DB에서 받아온 뒤에 거기에 기록을 덧붙여 나간다.
                 // 이렇게 하면 앱을 껐다가 다시 켜서 실행해도 이전 기록이 사라지는 일이 없다!!
