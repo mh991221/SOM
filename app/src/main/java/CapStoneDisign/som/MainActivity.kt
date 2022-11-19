@@ -411,6 +411,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 val intent = Intent(this, CameraActivity::class.java)
                 startActivity(intent)
             }
+            R.id.QRIcon ->{
+                val dlg = DateQRDialog(this)
+                dlg.start()
+                dlg.setOnOKClickedListener { content ->
+                    if(content.compareTo("intent") == 0){
+                        if(content.compareTo("intent") == 0){
+                            val intent = Intent(this, QrCodeActivity::class.java)
+                            startActivityForResult(intent,486486)
+                        }
+                    }
+
+                }
+            }
             R.id.markerIcon -> {
                 var tmp = routes[routes.lastIndex][routes[routes.lastIndex].lastIndex]
                 markerPoints.add(tmp.latitude)
@@ -429,7 +442,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                             startActivityForResult(intent,486486)
                         }
                     }
-
                 }
             }
         }
