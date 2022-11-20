@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Window
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -18,6 +19,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat.*
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.storage.FirebaseStorage
@@ -30,11 +32,26 @@ class DiaryShowDialog:AppCompatActivity() {
     private lateinit var partnerDiaryTextView: TextView
     private lateinit var myImageViewInDiary: ImageView
     private lateinit var partnerImageViewInDiary: ImageView
+    private lateinit var myDiaryEditTextView: EditText
+    private lateinit var myTextEditCompleteButtonInDiary:Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.marker_dialog_layout)
+
+
+        initLayout()
+        initButtonListener()
+
+
+    }
+
+    private fun initLayout(){
+        myTextEditCompleteButtonInDiary = findViewById(R.id.myTextEditCompleteButtonInDiary)
+        myTextEditButtonInDiary = findViewById(R.id.myTextEditButtonInDiary)
+
+        myDiaryEditTextView = findViewById(R.id.myDiaryEditTextView)
 
         myDiaryTextView = findViewById(R.id.myDiaryTextView)
         partnerDiaryTextView = findViewById(R.id.partnerDiaryTextView)
@@ -43,6 +60,9 @@ class DiaryShowDialog:AppCompatActivity() {
         partnerImageViewInDiary = findViewById(R.id.partnerImageViewInDiary)
 
         myImageEditButtonInDiary = findViewById(R.id.myImageEditButtonInDiary)
+    }
+
+    private fun initButtonListener(){
         myImageEditButtonInDiary.setOnClickListener {
             when{
                 ContextCompat.checkSelfPermission(
@@ -59,7 +79,33 @@ class DiaryShowDialog:AppCompatActivity() {
                 }
             }
         }
+
+        myTextEditButtonInDiary.setOnClickListener {
+            val text: String = myDiaryTextView.text.toString()
+            myDiaryEditTextView.setText(text)
+            myDiaryTextView.isVisible = false
+            myDiaryEditTextView.isVisible = true
+
+            myTextEditButtonInDiary.isVisible = false
+            myTextEditCompleteButtonInDiary.isVisible = true
+
+            Toast.makeText(this,"내용을 수정할 수 있습니다!",Toast.LENGTH_SHORT).show()
+        }
+
+        myTextEditCompleteButtonInDiary.setOnClickListener {
+            val text: String = myDiaryEditTextView.text.toString()
+            myDiaryTextView.text = text
+            myDiaryTextView.isVisible = true
+            myDiaryEditTextView.isVisible = false
+
+            myTextEditButtonInDiary.isVisible = true
+            myTextEditCompleteButtonInDiary.isVisible = false
+
+            Toast.makeText(this,"내용이 수정되었습니다!",Toast.LENGTH_SHORT).show()
+        }
+
     }
+
     private fun navigatePhotos(){
         val intent  = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "image/*"
