@@ -133,6 +133,7 @@ class CameraActivity : AppCompatActivity() {
 
         if(count > 5){
             /*todo (standardLatitude, standardLongitude)에 photoZone tag 를 달은 마커를 생성
+             내 생각엔 마커에 tag를 저장할 필요가 있는데 이건 어떻게 할까 그 diary 저장한 거기에 tag 도 같이 저장할 수 있나
              현시점에서 바로 보여줄 필요 없음(naverMap 이랑 일일히 연결하기 귀찮을거 같음)
              그냥 DB Marker 에 넣어만 두고 나중에 불러올때만 나타나도록 해주세요 */
         }
