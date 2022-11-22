@@ -47,7 +47,7 @@ import java.time.LocalDate
 
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback,
-    NavigationView.OnNavigationItemSelectedListener, Overlay.OnClickListener {
+    NavigationView.OnNavigationItemSelectedListener {
 
     //Firestore 레퍼런스. 이거 써서 Firestore에 값 올리고 내린다.
     val db = Firebase.firestore
@@ -117,7 +117,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
      */
 
     // 캘린더뷰 (날짜 선택해서 날짜값 받아오기 용
-    private val calender: CalendarView by lazy {
+    private val calendar: CalendarView by lazy {
         findViewById(R.id.calendarView)
     }
 
@@ -125,6 +125,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     private var isTracking: Int = 0
     private var groupID: String?= null
+    private lateinit var day: String
 
     private lateinit var locationSource: FusedLocationSource
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -144,9 +145,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         mapView.getMapAsync(this)
 
-        calender.setOnDateChangeListener { calender, year, month, dayOfMonth ->
+        calendar.setOnDateChangeListener { calender, year, month, dayOfMonth ->
             // 아니 ㅅㅂ 왜 반환하는 달 값은 +1을 해줘야 하는 건대 ㅅㅂ ㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-            var day:String = "${year}-${month+1}-${dayOfMonth}"
+            day= "${year}-${month+1}-${dayOfMonth}"
             Log.d("mylog", day)
             getMemory(day)
         }
@@ -361,7 +362,26 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                 Log.d("logForMarker","checked")
                                 markers[markers.lastIndex].position = LatLng(markerPoints[i], markerPoints[i+1])
                                 markers[markers.lastIndex].map = naverMap
-                                markers[markers.lastIndex].onClickListener = this
+                                markers[markers.lastIndex].setOnClickListener{
+                                    if(it is Marker){
+                                        Toast.makeText(this,"마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
+                                        val intent = Intent(this, DiaryShowDialog::class.java)
+                                        // todo 여기 putExtra value 에 날짜 + 마커번호로 된 값을 넘겨주세요
+                                        //마커 번호가 어떤건지 몰라서 여기에 남겨요
+                                        // 날짜는 내가 day 를 전역변수로 선언해서 넣어놨으니까 뒤에 마커번호만 붙여주세요
+                                        // 같은 listener 가 밑에 2개 더 있는데 함수로 따로 빼지 않은 이유는 마커 번호 받아오기가 어려워서임
+                                        // storage 에 사진 저장하는 기능은 다 구현했음
+                                        // text 만 DB에 넣으면 됨 text 도 이 이름으로 저장하고 싶은데 가능?
+                                        // text DB에 넣는거는 DiaryShowDialog 에 todo 로 달아 놓을게
+                                        intent.putExtra("marker",day)
+                                        Log.d("checkPutExtra","${day}")
+
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                        startActivity(intent)
+
+                                    }
+                                    true
+                                }
                             }
                         }
                     }
@@ -436,7 +456,22 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 markers.add(Marker())
                 markers[markers.lastIndex].position = LatLng(tmp.latitude, tmp.longitude)
                 markers[markers.lastIndex].map = naverMap
-                markers[markers.lastIndex].onClickListener = this
+                markers[markers.lastIndex].setOnClickListener{
+                    if(it is com.naver.maps.map.overlay.Marker){
+                        android.widget.Toast.makeText(this,"마커가 선택되었습니다", android.widget.Toast.LENGTH_SHORT).show()
+                        val intent = android.content.Intent(
+                            this,
+                            CapStoneDisign.som.DiaryShowDialog::class.java
+                        )
+                        // todo 여기 putExtra value 에 날짜 + 마커번호로 된 값을 넘겨주세요
+                        intent.putExtra("marker",day)
+
+                        intent.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                        startActivity(intent)
+
+                    }
+                    true
+                }
             }
             R.id.QRIcon ->{
                 val dlg = DateQRDialog(this)
@@ -584,7 +619,19 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                         markers.add(Marker())
                         markers[markers.lastIndex].position = LatLng(markerPoints[i], markerPoints[i+1])
                         markers[markers.lastIndex].map = naverMap
-                        markers[markers.lastIndex].onClickListener = this
+                        markers[markers.lastIndex].setOnClickListener{
+                            if(it is Marker){
+                                Toast.makeText(this,"마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
+                                val intent = Intent(this, DiaryShowDialog::class.java)
+                                // todo 여기 putExtra value 에 날짜 + 마커번호로 된 값을 넘겨주세요
+                                intent.putExtra("marker",day)
+
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                startActivity(intent)
+
+                            }
+                            true
+                        }
                     }
                 }
             }
@@ -593,17 +640,5 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             }
         Log.d("MyTAG", "여기서 끝나는 건가?!")
     }
-
-    override fun onClick(overlay: Overlay): Boolean {
-        if(overlay is Marker){
-            Toast.makeText(this,"마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
-            val intent = Intent(this, DiaryShowDialog::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            startActivity(intent)
-
-        }
-        return true
-    }
-
 
 }

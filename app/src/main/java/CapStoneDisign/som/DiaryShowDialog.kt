@@ -1,5 +1,7 @@
 package CapStoneDisign.som
 
+import CapStoneDisign.som.Model.GroupModel
+import CapStoneDisign.som.Model.UserModel
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
@@ -22,6 +24,15 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.database.ktx.getValue
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 
 class DiaryShowDialog:AppCompatActivity() {
@@ -34,6 +45,24 @@ class DiaryShowDialog:AppCompatActivity() {
     private lateinit var partnerImageViewInDiary: ImageView
     private lateinit var myDiaryEditTextView: EditText
     private lateinit var myTextEditCompleteButtonInDiary:Button
+    lateinit var storage: FirebaseStorage
+
+    private val auth: FirebaseAuth by lazy {
+        Firebase.auth
+    }
+
+    private val user = auth.currentUser!!.uid
+    private val userDB: DatabaseReference by lazy {
+        Firebase.database.reference.child(DBKey.DB_USERS)
+    }
+
+    private val groupDB: DatabaseReference by lazy{
+        Firebase.database.reference.child(DBKey.DB_GROUPS)
+    }
+
+    var userModel: UserModel? = null
+    var groupModel: GroupModel? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,9 +72,107 @@ class DiaryShowDialog:AppCompatActivity() {
 
         initLayout()
         initButtonListener()
-
+        initData()
 
     }
+
+    private fun initData(){
+        initPhoto()
+        initText()
+    }
+
+    private fun initPhoto(){
+        var partnerId: String?=null
+        val curruser = userDB.child(user)
+        curruser.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                userModel = snapshot.getValue<UserModel>()
+
+                val currentGroup = groupDB.child(userModel?.groupID!!) // groupId에 접근
+                currentGroup.addValueEventListener(object: ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        groupModel = snapshot.getValue<GroupModel>()
+
+                        Log.d("checkiing partner","${groupModel?.secondUserID}")
+
+                        if(user.compareTo(groupModel?.firstUserID!!) == 0){     // 내 id와 대조하여 상대의 id 찾아내기
+                            partnerId = groupModel?.secondUserID.toString()
+                            Log.d("checkiing partner","${partnerId}")
+
+                        }else{
+                            partnerId = groupModel?.firstUserID.toString()
+
+                        }
+
+                        Log.d("checkiing partner","${partnerId}")
+                        val storage = FirebaseStorage.getInstance()
+                        val storageRef = storage.reference
+
+                        var marker = intent.getStringExtra("marker")
+                        var fileName = "${user}/${marker}"
+                        var fileNameForPartner = "${partnerId!!}/${marker}"
+
+                        storageRef.child("image").child(fileName).downloadUrl.addOnSuccessListener { uri -> //이미지 로드 성공시
+                            Glide.with(applicationContext)
+                                .load(uri)
+                                .into(myImageViewInDiary)
+                        }.addOnFailureListener { //이미지 로드 실패시
+                        }
+
+                        storageRef.child("image").child(fileNameForPartner!!).downloadUrl.addOnSuccessListener { uri -> //이미지 로드 성공시
+                            Glide.with(applicationContext)
+                                .load(uri)
+                                .into(partnerImageViewInDiary)
+                        }.addOnFailureListener { //이미지 로드 실패시
+                        }
+
+                    }
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
+    private fun initText(){
+        var partnerId: String?=null
+        val curruser = userDB.child(user)
+
+        curruser.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                userModel = snapshot.getValue<UserModel>()
+
+                val currentGroup = groupDB.child(userModel?.groupID!!) // groupId에 접근
+                currentGroup.addValueEventListener(object: ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        groupModel = snapshot.getValue<GroupModel>()
+
+                        if(user.compareTo(groupModel?.firstUserID!!) == 0){     // 내 id와 대조하여 상대의 id 찾아내기
+                            partnerId = groupModel?.secondUserID.toString()
+                            Log.d("checkiing partner","${partnerId}")
+
+                        }else{
+                            partnerId = groupModel?.firstUserID.toString()
+                        }
+
+                        var marker = intent.getStringExtra("marker")
+                        //todo 내 아이디와 partner ID는 찾아 놨으니까
+                        //여기서 marker 로 들어가면(마커는 Main 에서 전달해준 marker 이름임) 해당 텍스트가 있을거임
+                        //저장하는 로직도 밑에 todo로 달아놨어여 DB 접근만 해주면 됨
+                        // 그걸 아래에 text 에 연결해주면 됨
+                        // 혹시나 해서 하는 말인데 marker가 여러번 선언되어있긴 한데 전역으로 빼면 오류나니까 빼지 마세여
+
+//                        myDiaryTextView.text =
+//                        partnerDiaryTextView.text =
+
+                    }
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
 
     private fun initLayout(){
         myTextEditCompleteButtonInDiary = findViewById(R.id.myTextEditCompleteButtonInDiary)
@@ -101,6 +228,13 @@ class DiaryShowDialog:AppCompatActivity() {
             myTextEditButtonInDiary.isVisible = true
             myTextEditCompleteButtonInDiary.isVisible = false
 
+            var marker = intent.getStringExtra("marker")
+            //todo text 저장은 어차피 내 것만 수정할 수 있게 해놔서
+            //DB 폴더가 내 ID -> 오늘 날짜 -> marker 순서가 되게 해서 저장해주면 됨
+            //오늘 날짜 안에 그날의 마커 이름들 저장하는 방식
+            // 해서 내가 맨 위에 있는 text 변수에 String 은 다 넣어 놨음
+            // DB 접근해서 할당만 해주세요
+
             Toast.makeText(this,"내용이 수정되었습니다!",Toast.LENGTH_SHORT).show()
         }
 
@@ -115,6 +249,7 @@ class DiaryShowDialog:AppCompatActivity() {
     @SuppressLint("SimpleDateFormat")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+        storage= FirebaseStorage.getInstance()
         if(resultCode != Activity.RESULT_OK){
             return
         }
@@ -134,6 +269,14 @@ class DiaryShowDialog:AppCompatActivity() {
                             .into(myImageViewInDiary)
                     }
 
+
+                    var marker = intent.getStringExtra("marker")
+                    var fileName = "${user}/${marker}"
+
+                    Log.d("markerFileName",fileName)
+                    storage.getReference().child("image").child(fileName).delete()
+                    storage.getReference().child("image").child(fileName)
+                        .putFile(selectedImageUri)
 
                 }else{
                     Toast.makeText(this,"사진을 가져오지 못했습니다.",Toast.LENGTH_SHORT).show()
