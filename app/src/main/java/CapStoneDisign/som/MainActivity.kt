@@ -373,8 +373,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                         // storage 에 사진 저장하는 기능은 다 구현했음
                                         // text 만 DB에 넣으면 됨 text 도 이 이름으로 저장하고 싶은데 가능?
                                         // text DB에 넣는거는 DiaryShowDialog 에 todo 로 달아 놓을게
-                                        intent.putExtra("marker",day)
-                                        Log.d("checkPutExtra","${day}")
+
+                                        Log.d("mylog","기록 시작에서 실행되는 코드입니당")
+                                        Log.d("mylog","마커의 좌표 ${it.position}")
+                                        Log.d("mylog","몇 번째로 찍힌 마커인가? ${markerPoints.indexOf(it.position.latitude) / 2}")
+                                        Log.d("mylog","넘길 값 한 눈에 보기: "+day+"+${markerPoints.indexOf(it.position.latitude) / 2}")
+                                        intent.putExtra("marker",day+"+${markerPoints.indexOf(it.position.latitude) / 2}")
+                                        Log.d("checkPutExtra",day+"+${markerPoints.indexOf(it.position.latitude) / 2}")
 
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                         startActivity(intent)
@@ -464,7 +469,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                             CapStoneDisign.som.DiaryShowDialog::class.java
                         )
                         // todo 여기 putExtra value 에 날짜 + 마커번호로 된 값을 넘겨주세요
-                        intent.putExtra("marker",day)
+                        Log.d("mylog","마커 생성에서 실행되는 코드입니당")
+                        Log.d("mylog","마커의 좌표 ${it.position}")
+                        Log.d("mylog","몇 번째로 찍힌 마커인가? ${markerPoints.indexOf(it.position.latitude) / 2}")
+                        Log.d("mylog","넘길 값 한 눈에 보기: "+day+"+${markerPoints.indexOf(it.position.latitude) / 2}")
+                        intent.putExtra("marker", day+"+${markerPoints.indexOf(it.position.latitude) / 2}")
 
                         intent.addFlags(android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP)
                         startActivity(intent)
@@ -621,10 +630,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                         markers[markers.lastIndex].map = naverMap
                         markers[markers.lastIndex].setOnClickListener{
                             if(it is Marker){
+                                // it.position을 통해 클릭된 마커의 좌표값을 받아오는 것이 가능하다!!
+                                Log.d("mylog","getMemory()에서 실행되는 코드입니당")
+                                Log.d("mylog","마커의 좌표 ${it.position}")
+                                Log.d("mylog","몇 번째로 찍힌 마커인가? ${markerPoints.indexOf(it.position.latitude) / 2}")
                                 Toast.makeText(this,"마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
                                 val intent = Intent(this, DiaryShowDialog::class.java)
                                 // todo 여기 putExtra value 에 날짜 + 마커번호로 된 값을 넘겨주세요
-                                intent.putExtra("marker",day)
+                                Log.d("mylog","넘길 값 한 눈에 보기: "+day+"+${markerPoints.indexOf(it.position.latitude) / 2}")
+                                intent.putExtra("marker",day + "+${markerPoints.indexOf(it.position.latitude) / 2}")
 
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                                 startActivity(intent)
