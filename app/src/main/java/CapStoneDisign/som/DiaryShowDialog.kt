@@ -171,30 +171,24 @@ class DiaryShowDialog:AppCompatActivity() {
 //                        myDiaryTextView.text =
 //                        partnerDiaryTextView.text =
 
-                        // DB에서 myDiaryTextView 받아오기
-                        db.collection(user).document(marker.toString()).get()
+                        db.collection(userModel?.groupID.toString()).document(marker.toString()).get()
                             .addOnSuccessListener{ document ->
-                                if (document.get("text") != null) {
-                                    myDiaryTextView.text = document.get("text").toString()
+                                // DB에서 myDiaryTextView 받아오기
+                                if (document.get(user) != null) {
+                                    myDiaryTextView.text = document.get(user).toString()
                                 }
                                 else {
                                     Log.d("mylog","$user 에서 myDiaryTextView 못받아왔어용")
                                 }
+                                // DB에서 partnerDiaryTextView 받아오기
+                                if (document.get(partnerId.toString()) != null) {
+                                    partnerDiaryTextView.text = document.get(partnerId.toString()).toString()
+                                }
+                                else {
+                                    Log.d("mylog","$partnerId 에서 partnerDiaryTextView 못받아왔어용")
+                                }
                             }
 
-                        // DB에서 partnerDiaryTextView 받아오기
-                        // 파트너 없으면 안 받아옵니다
-                        if (partnerId != null) {
-                            db.collection(partnerId!!).document(marker.toString()).get()
-                                .addOnSuccessListener{ document ->
-                                    if (document.get("text") != null) {
-                                        partnerDiaryTextView.text = document.get("text").toString()
-                                    }
-                                    else {
-                                        Log.d("mylog","$partnerId 에서 partnerDiaryTextView 못받아왔어용")
-                                    }
-                                }
-                        }
 
                     }
                     override fun onCancelled(error: DatabaseError) {}
@@ -268,17 +262,19 @@ class DiaryShowDialog:AppCompatActivity() {
 
             // 파이어스토어에 전달해 줄 해시맵 생성
             val toWrite = hashMapOf(
-                "text" to text
+                "$user" to text
             )
             // 파이어스토어에 작성하는 부분
             val curruser = userDB.child(user)
             curruser.addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
+                    userModel = snapshot.getValue<UserModel>()
+
                     //컬렉션: 내 ID, 다큐먼트: 날짜와 시간과 마커 번호, 내용: 텍스트
-                    Log.d("Mylog", "내 ID: $user")
+                    Log.d("Mylog", "그룹 ID: ${userModel?.groupID}")
                     Log.d("Mylog", "날짜와 마커번호: ${marker.toString()}")
                     Log.d("Mylog", "쓸 텍스트: $text")
-                    db.collection(user)
+                    db.collection(userModel?.groupID.toString())
                         .document(marker.toString())
                         .set(toWrite, SetOptions.merge())
                         .addOnSuccessListener {
