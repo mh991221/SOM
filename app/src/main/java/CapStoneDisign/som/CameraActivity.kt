@@ -1,5 +1,6 @@
 package CapStoneDisign.som
 
+import CapStoneDisign.som.Model.UserModel
 import CapStoneDisign.som.databinding.CameraLayoutBinding
 import android.Manifest
 import android.content.pm.PackageManager
@@ -18,13 +19,23 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.getValue
+import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import java.io.File
 import java.text.SimpleDateFormat
+import java.time.LocalDate
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.*
 
 class CameraActivity : AppCompatActivity() {
+
+    // DB에 값 올리기 위해 파이어스토어
+    val db = Firebase.firestore
 
     lateinit private var binding: CameraLayoutBinding
 
@@ -136,6 +147,37 @@ class CameraActivity : AppCompatActivity() {
              내 생각엔 마커에 tag를 저장할 필요가 있는데 이건 어떻게 할까 그 diary 저장한 거기에 tag 도 같이 저장할 수 있나
              현시점에서 바로 보여줄 필요 없음(naverMap 이랑 일일히 연결하기 귀찮을거 같음)
              그냥 DB Marker 에 넣어만 두고 나중에 불러올때만 나타나도록 해주세요 */
+
+            // 메인에서 받아온 오늘의 날짜
+            var day = intent.getStringExtra("day")
+            var groupID = intent.getStringExtra("groupID")
+
+            // 위치 값 토대로, 포토존으로 만들어진 마커에 대한 정보를 꾸린다.
+            var tag = "photo"
+            val marker = hashMapOf(
+                "tag" to tag,
+                "Latitude" to standardLatitude,
+                "Longitude" to standardLongitude,
+            )
+            // 마커를 특정하기 위해, 위치정보를 토대로 마커의 이름을 만든다.
+            var docName = "$standardLatitude:$standardLongitude"
+
+            db.collection(groupID.toString())
+                .document(day.toString())
+                .collection("marker")
+                .document(docName)
+                .set(marker, SetOptions.merge())
+                .addOnSuccessListener {
+                    Log.d("Mylog", "사진 마커 저장 완료!")
+                }
+                .addOnFailureListener { e ->
+                    Log.w(
+                        "MyLog",
+                        "사진 마커 저장에 실패함!",
+                        e
+                    )
+                }
+
         }
     }
 

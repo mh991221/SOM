@@ -44,6 +44,7 @@ import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.widget.LocationButtonView
 import java.time.LocalDate
+import kotlin.math.*
 
 
 class MainActivity : AppCompatActivity(), OnMapReadyCallback,
@@ -147,7 +148,18 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         calendar.setOnDateChangeListener { calender, year, month, dayOfMonth ->
             // 아니 ㅅㅂ 왜 반환하는 달 값은 +1을 해줘야 하는 건대 ㅅㅂ ㅋㅋㅋㅋㅋㅋㅋㅋㅋ
-            day= "${year}-${month+1}-${dayOfMonth}"
+
+            // 저장할 땐 01로 저장하는데, 달력 클릭하면 day가 0이 아니라 1임.
+            // 그거 먼저 처리 좀 해줄게
+            var newday = ""
+            if (dayOfMonth / 10 < 1) {
+                newday = "0$dayOfMonth"
+            }
+            else {
+                newday = "$dayOfMonth"
+            }
+
+            day= "${year}-${month+1}-${newday}"
             Log.d("mylog", day)
             getMemory(day)
         }
@@ -210,6 +222,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         setUpdateLocationListener()
     }
 
+    // 일단 일관성을 위해 카메라 부분에 달려있는 거랑 동일하게 구현하겠음
+    private var standardLatitude = 0.0
+    private var standardLongitude = 0.0
+    var count = 0
+    // 현재 위치는 뭐 따로 만들어줄 필요는 없을 거 같은데, 이게 보기 편하니까 쓰도록 하겠음
+    private var presentLatitude = 0.0
+    private var presentLongitude = 0.0
+    //
+    private val numberToCalculateDistance = 6372.8 * 1000
+
     @SuppressLint("MissingPermission")
     fun setUpdateLocationListener() {
         val locationRequest = LocationRequest.create()
@@ -218,6 +240,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             interval = 1000 //1초에 한번씩 GPS 요청
         }
 
+        // 이 부분에서 사용자의 현재 위치가 갱신되니, 여기에 머문 자리 마커 생성 기능을 추가하겠다.
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult ?: return
@@ -225,14 +248,97 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                     Log.d("location1: ", "${location.latitude}, ${location.longitude}")
                     if (checkWritingOrNot == 1) {
 
+                        // 사용자의 현재 위치를 경로에 추가
                         routes[routes.lastIndex].add(LatLng(location.latitude, location.longitude))
 
+                        // 경로 길이가 3 이상이어야 지도에 경로를 그릴 수 있으니, 경로 길이가 3 이상인지 체크
+                        // 3 이상이면 경로 그려줌
                         if(routes[routes.lastIndex].size>=3){
                             path.coordParts = routes
                             path.map = naverMap
                         }
                         routesd.add(location.latitude)
                         routesd.add(location.longitude)
+
+                        // 머문자리 마커 생성 기능
+                        if (count == 0) {
+                            standardLatitude = location.latitude
+                            standardLongitude = location.longitude
+                            count++
+                        }
+                        else {
+                            presentLatitude = location.latitude
+                            presentLongitude = location.longitude
+
+                            val dLat = Math.toRadians(presentLatitude - standardLatitude)
+                            val dLon = Math.toRadians(presentLongitude - standardLongitude)
+
+                            val a = sin(dLat / 2).pow(2.0) + sin(dLon / 2).pow(2.0) * cos(Math.toRadians(presentLatitude)) * cos(Math.toRadians(standardLatitude))
+                            val c = 2 * asin(sqrt(a))
+                            val distance =  (numberToCalculateDistance * c).toInt()
+
+                            if(distance <= 100){
+                                count++
+                            }else{
+                                count = 1
+                                standardLatitude = presentLatitude
+                                standardLongitude = presentLongitude
+                            }
+                        }
+
+                        // 현재는 1초에 한 번씩 gps 받아오니까,
+                        // 일단 실험용으로 10초 동안 머물면 마커 생성되게 해봤음.
+                        // count가 1 올라갈 때마다 1초 지나는 거
+                        if (count > 10) {
+                            // 생성될 마커의 위치값 받아온다.
+                            var tmp = routes[routes.lastIndex][routes[routes.lastIndex].lastIndex]
+                            var tmpLat = tmp.latitude
+                            var tmpLong = tmp.longitude
+
+                            // 위치 값 토대로, 방문으로 만들어진 마커에 대한 정보를 꾸린다.
+                            var tag = "visited"
+                            val marker = hashMapOf(
+                                "tag" to tag,
+                                "Latitude" to tmpLat,
+                                "Longitude" to tmpLong,
+                            )
+                            // 다큐먼트를 특정하기 위해, 다큐먼트의 이름을 좌표값을 이용해 만들어낸다.
+                            var docName = "$tmpLat:$tmpLong"
+
+                            // 현재 사용자가 누구인지 확인
+                            val curruser = userDB.child(auth.currentUser!!.uid)
+                            // 현재 사용자의 정보 기반으로 DB에 값 저장
+                            curruser.addValueEventListener(object : ValueEventListener {
+                                // ?? 이건 왜 필요하다냐?
+                                @RequiresApi(Build.VERSION_CODES.O)
+                                override fun onDataChange(snapshot: DataSnapshot) {
+                                    userModel = snapshot.getValue<UserModel>()
+
+                                    //컬렉션: 그룹ID, 다큐먼트: 날짜와 시간, 내용: 경로들
+                                    db.collection(userModel?.groupID.toString())
+                                        .document(LocalDate.now().toString())
+                                        .collection("marker")
+                                        .document(docName)
+                                        .set(marker, SetOptions.merge())
+                                        .addOnSuccessListener {
+                                            Log.d("Mylog", "방문 마커 저장 완료!")
+                                        }
+                                        .addOnFailureListener { e ->
+                                            Log.w(
+                                                "MyLog",
+                                                "방문 마커 저장 실패함!",
+                                                e
+                                            )
+                                        }
+                                }
+
+                                override fun onCancelled(error: DatabaseError) {}
+                            })
+
+                            // 카운트 값 다시 초기화
+                            count = 0
+                        }
+                        Log.d("Mylog", "현재 count 값: $count")
                     }
                     setLastLocation(location)
 //                    val intent = Intent(this@MainActivity, BackgroundLocationUpdateService::class.java)
@@ -348,6 +454,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                             Log.d("MyTAG", "No such document")
                         }
 
+                        // 마커 구조를 다 뜯어 고칠 예정. 이제 기록 중에는 마커 안 띄우고 불러올 때만 마커 띄우게 할 것임.
+                        // 현재 그려져있는 마커는 다 지운다 일단.
+                        for (i: Int in 0..markers.lastIndex) {
+                            markers[i].map = null
+                        }
+                        markers.clear()
+                        /*
                         Log.d("MyTAG", "lastIndex ${markers.lastIndex}")
                         for (i: Int in 0..markers.lastIndex) {
                             markers[i].map = null
@@ -389,10 +502,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                 }
                             }
                         }
+                        */
                     }
                     .addOnFailureListener { exception ->
                         Log.d("MyTAG", "get failed with ", exception)
                     }
+
                 // 새로이 적어나갈 경로를 위해 미리 만들어두는 것.
                 routes.add(mutableListOf<LatLng>())
                 memcolor.add(MultipartPathOverlay.ColorPart(Color.RED, Color.WHITE, Color.GRAY, Color.LTGRAY))
@@ -402,6 +517,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             }
             R.id.endIcon -> {
                 checkWritingOrNot = 0
+                // end 누르면 count 값 다시 0으로 만들어줘야지
+                count = 0
                 // 이제 루츠에 굳이 0,0 넣을 필요는 없을 듯?
                 // routes[routes.lastIndex].add(LatLng(0.0, 0.0))
                 routesd.add(0.0)
@@ -439,6 +556,22 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             }
             R.id.cameraIcon ->{
                 val intent = Intent(this, CameraActivity::class.java)
+                // 날짜 정보, 그룹 아이디를 일단 여기서 넘기게 해봤음.
+                // 더 나은 방법이 있다 싶으면 그렇게 바꿔도 되고.
+                var groupID = "이대로 나오면 뭔가 잘못된 것"
+
+                val curruser = userDB.child(auth.currentUser!!.uid)
+                curruser.addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        userModel = snapshot.getValue<UserModel>()
+                    }
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+                groupID = userModel?.groupID.toString()
+                Log.d("mylog","날짜: ${LocalDate.now()}")
+                Log.d("mylog","그룹아이디 $groupID")
+                intent.putExtra("day", LocalDate.now().toString())
+                intent.putExtra("groupID", groupID)
                 startActivity(intent)
             }
             R.id.QRIcon ->{
@@ -455,6 +588,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 }
             }
             R.id.markerIcon -> {
+                // 마커 구조를 다 뜯어 고칠 예정. 이제 마커를 생성하면, 해당 날짜의 다큐먼트 안의 내부 컬렉션에
+                // 그 마커와 관련된 정보를 담고 있는 해시맵을 생성할 것이다.
+
+                /*
                 var tmp = routes[routes.lastIndex][routes[routes.lastIndex].lastIndex]
                 markerPoints.add(tmp.latitude)
                 markerPoints.add(tmp.longitude)
@@ -481,6 +618,51 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                     }
                     true
                 }
+                */
+
+                // 생성될 마커의 위치값 받아온다.
+                var tmp = routes[routes.lastIndex][routes[routes.lastIndex].lastIndex]
+                var tmpLat = tmp.latitude
+                var tmpLong = tmp.longitude
+
+                // 위치 값 토대로, 클릭으로 만들어진 마커에 대한 정보를 꾸린다.
+                var tag = "clicked"
+                val marker = hashMapOf(
+                    "tag" to tag,
+                    "Latitude" to tmpLat,
+                    "Longitude" to tmpLong
+                )
+                // 다큐먼트를 특정하기 위해, 다큐먼트의 이름을 좌표값을 이용해 만들어낸다.
+                var docName = "$tmpLat:$tmpLong"
+
+                // 현재 사용자가 누구인지 확인
+                val curruser = userDB.child(auth.currentUser!!.uid)
+                // 현재 사용자의 정보 기반으로 DB에 값 저장
+                curruser.addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        userModel = snapshot.getValue<UserModel>()
+
+                        //컬렉션: 그룹ID, 다큐먼트: 날짜와 시간, 내용: 경로들
+                        db.collection(userModel?.groupID.toString())
+                            .document(LocalDate.now().toString())
+                            .collection("marker")
+                            .document(docName)
+                            .set(marker, SetOptions.merge())
+                            .addOnSuccessListener {
+                                Log.d("Mylog", "클릭 마커 저장 완료!")
+                            }
+                            .addOnFailureListener { e ->
+                                Log.w(
+                                    "MyLog",
+                                    "클릭 마커 저장 실패함!",
+                                    e
+                                )
+                            }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {}
+                })
+
             }
             R.id.QRIcon ->{
                 val dlg = DateQRDialog(this)
@@ -615,6 +797,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                     path.map = null
                 }
 
+                /*
                 Log.d("MyTAG", "lastIndex ${markers.lastIndex}")
                 for (i: Int in 0..markers.lastIndex) {
                     markers[i].map = null
@@ -648,10 +831,105 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                         }
                     }
                 }
+                */
+
             }
             .addOnFailureListener { exception ->
                 Log.d("MyTAG", "get failed with ", exception)
             }
+
+        // 마커 불러오기
+        db.collection(userModel?.groupID.toString())
+            .document(date)
+            .collection("marker")
+            .get()
+            .addOnSuccessListener { documents ->
+
+                // 현재 그려진 마커들 일단 정리
+                for (i: Int in 0..markers.lastIndex) {
+                    markers[i].map = null
+                }
+                markers.clear()
+                // 불러온 애들 좌표값 받아서 지도에 그리기
+                for (document in documents) {
+                    // 지도에 그릴 마커 하나 추가
+                    markers.add(Marker())
+                    // 현재 다큐먼트의 좌표값 받아서 지도에 그릴 마커의 좌표값으로 적어주기
+                    markers[markers.lastIndex].position = LatLng(document["Latitude"] as Double,
+                        document["Longitude"] as Double
+                    )
+                    // 좌표값 적어준 후 지도에 그려주기
+                    markers[markers.lastIndex].map = naverMap
+                    // 클릭 리스너 달아주기
+                    markers[markers.lastIndex].setOnClickListener {
+                        if (it is Marker) {
+                            // it.position을 통해 클릭된 마커의 좌표값을 받아오는 것이 가능하다!!
+                            Log.d("mylog", "getMemory()에서 실행되는 코드입니당")
+                            Log.d("mylog", "마커의 좌표 ${it.position}")
+                            Toast.makeText(this, "마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this, DiaryShowDialog::class.java)
+                            // todo 여기 putExtra value 에 날짜 + 마커번호로 된 값을 넘겨주세요
+                            // 값 잘 넘기는지 확인용
+                            Log.d("mylog"," day: $date")
+                            Log.d("mylog","Lat: ${it.position.latitude}")
+                            Log.d("mylog", "Long: ${it.position.longitude}")
+                            // 날짜 넘겨주기
+                            intent.putExtra("day", date)
+                            // 위치 넘겨주기
+                            intent.putExtra("Lat", it.position.latitude)
+                            intent.putExtra("Long", it.position.longitude)
+
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                            startActivity(intent)
+
+                        }
+                        true
+                    }
+                }
+
+
+                /*
+                Log.d("MyTAG", "lastIndex ${markers.lastIndex}")
+                for (i: Int in 0..markers.lastIndex) {
+                    markers[i].map = null
+                }
+                markers.clear()
+                if (document.get("marker") != null) {
+                    Log.d("logForMarker","checked")
+                    markerPoints = document.get("marker") as MutableList<Double>
+                    markers.clear()
+                    for (i: Int in 0 until markerPoints.size step(2)) {
+                        markers.add(Marker())
+                        markers[markers.lastIndex].position = LatLng(markerPoints[i], markerPoints[i+1])
+                        markers[markers.lastIndex].map = naverMap
+                        markers[markers.lastIndex].setOnClickListener{
+                            if(it is Marker){
+                                // it.position을 통해 클릭된 마커의 좌표값을 받아오는 것이 가능하다!!
+                                Log.d("mylog","getMemory()에서 실행되는 코드입니당")
+                                Log.d("mylog","마커의 좌표 ${it.position}")
+                                Log.d("mylog","몇 번째로 찍힌 마커인가? ${markerPoints.indexOf(it.position.latitude) / 2}")
+                                Toast.makeText(this,"마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
+                                val intent = Intent(this, DiaryShowDialog::class.java)
+                                // todo 여기 putExtra value 에 날짜 + 마커번호로 된 값을 넘겨주세요
+                                Log.d("mylog","넘길 값 한 눈에 보기: "+day+"+${markerPoints.indexOf(it.position.latitude) / 2}")
+                                intent.putExtra("marker",day + "+${markerPoints.indexOf(it.position.latitude) / 2}")
+
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                startActivity(intent)
+
+                            }
+                            true
+                        }
+                    }
+                }
+                */
+
+            }
+            .addOnFailureListener { exception ->
+                Log.d("MyTAG", "get failed with ", exception)
+            }
+
+
         Log.d("MyTAG", "여기서 끝나는 건가?!")
     }
 

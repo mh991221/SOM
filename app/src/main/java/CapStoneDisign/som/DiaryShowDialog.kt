@@ -161,7 +161,6 @@ class DiaryShowDialog:AppCompatActivity() {
                             partnerId = groupModel?.firstUserID.toString()
                         }
 
-                        var marker = intent.getStringExtra("marker")
                         //todo 내 아이디와 partner ID는 찾아 놨으니까
                         //여기서 marker 로 들어가면(마커는 Main 에서 전달해준 marker 이름임) 해당 텍스트가 있을거임
                         //저장하는 로직도 밑에 todo로 달아놨어여 DB 접근만 해주면 됨
@@ -171,7 +170,18 @@ class DiaryShowDialog:AppCompatActivity() {
 //                        myDiaryTextView.text =
 //                        partnerDiaryTextView.text =
 
-                        db.collection(userModel?.groupID.toString()).document(marker.toString()).get()
+                        // 마커의 날짜
+                        var day = intent.getStringExtra("day")
+                        // 마커의 위치 (마커 구조를 바꿔서, 날짜와 위치로 마커를 특정해야 할 것 같음.
+                        var tmpLat = intent.getDoubleExtra("Lat", 0.0)
+                        var tmpLong = intent.getDoubleExtra("Long", 0.0)
+                        var docName = "$tmpLat:$tmpLong"
+
+                        db.collection(userModel?.groupID.toString())
+                            .document(day.toString())
+                            .collection("marker")
+                            .document(docName)
+                            .get()
                             .addOnSuccessListener{ document ->
                                 // DB에서 myDiaryTextView 받아오기
                                 if (document.get(user) != null) {
@@ -188,6 +198,8 @@ class DiaryShowDialog:AppCompatActivity() {
                                     Log.d("mylog","$partnerId 에서 partnerDiaryTextView 못받아왔어용")
                                 }
                             }
+
+
 
 
                     }
@@ -253,16 +265,24 @@ class DiaryShowDialog:AppCompatActivity() {
             myTextEditButtonInDiary.isVisible = true
             myTextEditCompleteButtonInDiary.isVisible = false
 
-            var marker = intent.getStringExtra("marker")
             //todo text 저장은 어차피 내 것만 수정할 수 있게 해놔서
             //DB 폴더가 내 ID -> 오늘 날짜 -> marker 순서가 되게 해서 저장해주면 됨
             //오늘 날짜 안에 그날의 마커 이름들 저장하는 방식
             // 해서 내가 맨 위에 있는 text 변수에 String 은 다 넣어 놨음
             // DB 접근해서 할당만 해주세요
 
+            // 마커 정보 찾아가기 위한 정보들
+            var day = intent.getStringExtra("day")
+            var tmpLat = intent.getDoubleExtra("Lat", 0.0)
+            var tmpLong = intent.getDoubleExtra("Long", 0.0)
+            var docName = "$tmpLat:$tmpLong"
+
             // 파이어스토어에 전달해 줄 해시맵 생성
+            // wrote는 텍스트가 입력된 적 있는 애만 가지는 필드임.
+            var wrote = 1
             val toWrite = hashMapOf(
-                "$user" to text
+                "$user" to text,
+                "wrote" to wrote
             )
             // 파이어스토어에 작성하는 부분
             val curruser = userDB.child(user)
@@ -272,10 +292,13 @@ class DiaryShowDialog:AppCompatActivity() {
 
                     //컬렉션: 내 ID, 다큐먼트: 날짜와 시간과 마커 번호, 내용: 텍스트
                     Log.d("Mylog", "그룹 ID: ${userModel?.groupID}")
-                    Log.d("Mylog", "날짜와 마커번호: ${marker.toString()}")
+                    Log.d("Mylog", "날짜: $day")
+                    Log.d("Mylog", "마커위치: $docName")
                     Log.d("Mylog", "쓸 텍스트: $text")
                     db.collection(userModel?.groupID.toString())
-                        .document(marker.toString())
+                        .document(day.toString())
+                        .collection("marker")
+                        .document(docName)
                         .set(toWrite, SetOptions.merge())
                         .addOnSuccessListener {
                             Log.d("Mylog", "마커에 텍스트 저장 완료!")
