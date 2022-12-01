@@ -180,6 +180,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             override fun onDataChange(snapshot: DataSnapshot) {
                 userModel = snapshot.getValue<UserModel>()
                 groupID = userModel?.groupID
+
+                Log.d("checking", "${groupID}")
             }
 
             override fun onCancelled(error: DatabaseError) {}
