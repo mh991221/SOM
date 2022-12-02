@@ -3,24 +3,122 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity" >
+    tools:context=".MainActivity">
+
 
     <com.naver.maps.map.MapView
         android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingTop="?attr/actionBarSize"/>
+        android:paddingTop="?attr/actionBarSize" />
 
-    <include layout="@layout/toolbar_layout"/>
+    <include layout="@layout/toolbar_layout" />
 
-    <include layout="@layout/calendar_bottom_sheet"/>
+    <include layout="@layout/calendar_bottom_sheet" />
 
     <com.naver.maps.map.widget.LocationButtonView
         android:id="@+id/currentLocationButton"
-        android:layout_gravity="center|start"
         android:layout_width="wrap_content"
-        android:layout_margin="12dp"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|start"
+        android:layout_margin="12dp" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/editMarkerButton"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/ic_baseline_edit_24" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/watchMarkerButton"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/ic_baseline_menu_book_24"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:background="#EFCBCB"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginBottom="85dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_marginStart="2dp"
+                android:text="포토존마커"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"/>
+
+            <ToggleButton
+                android:id="@+id/photoZoneToggleButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp"
+                android:textOff="보기"
+                android:textOn="숨기기"/>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_marginStart="2dp"
+                android:text="장소마커"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"/>
+
+            <ToggleButton
+                android:id="@+id/placeToggleButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp"
+                android:textOff="보기"
+                android:textOn="숨기기"/>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_marginStart="2dp"
+                android:text="결제마커"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"/>
+
+            <ToggleButton
+                android:id="@+id/paymentToggleButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp"
+                android:textOff="보기"
+                android:textOn="숨기기"/>
+
+
+        </LinearLayout>
+
+
+
+    </LinearLayout>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

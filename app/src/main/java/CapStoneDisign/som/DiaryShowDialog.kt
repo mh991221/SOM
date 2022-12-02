@@ -50,6 +50,9 @@ class DiaryShowDialog:AppCompatActivity() {
     private lateinit var myTextEditCompleteButtonInDiary:Button
     lateinit var storage: FirebaseStorage
 
+    var isEditMode = intent.getBooleanExtra("isEditMode",false)
+
+
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
     }
@@ -224,6 +227,14 @@ class DiaryShowDialog:AppCompatActivity() {
         partnerImageViewInDiary = findViewById(R.id.partnerImageViewInDiary)
 
         myImageEditButtonInDiary = findViewById(R.id.myImageEditButtonInDiary)
+
+        if(isEditMode){
+            myImageEditButtonInDiary.isVisible = true
+            myTextEditButtonInDiary.isVisible = true
+        }else{
+            myImageEditButtonInDiary.isVisible = false
+            myTextEditButtonInDiary.isVisible = false
+        }
     }
 
     private fun initButtonListener(){
@@ -276,6 +287,7 @@ class DiaryShowDialog:AppCompatActivity() {
             var tmpLat = intent.getDoubleExtra("Lat", 0.0)
             var tmpLong = intent.getDoubleExtra("Long", 0.0)
             var docName = "$tmpLat:$tmpLong"
+
 
             // 파이어스토어에 전달해 줄 해시맵 생성
             // wrote는 텍스트가 입력된 적 있는 애만 가지는 필드임.

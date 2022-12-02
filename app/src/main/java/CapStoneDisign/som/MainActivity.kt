@@ -15,12 +15,15 @@ import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.view.MenuItem
+import android.widget.Button
 import android.widget.CalendarView
 import android.widget.Toast
+import android.widget.ToggleButton
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.gms.location.*
 import com.google.android.material.navigation.NavigationView
@@ -83,6 +86,26 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     var context: Context? = null
 
+    private val editMarkerButton: Button by lazy{
+        findViewById(R.id.editMarkerButton)
+    }
+
+    private val watchMarkerButton: Button by lazy{
+        findViewById(R.id.watchMarkerButton)
+    }
+
+    private val photoZoneToggleButton: ToggleButton by lazy{
+        findViewById(R.id.photoZoneToggleButton)
+    }
+
+    private val placeToggleButton: ToggleButton by lazy{
+        findViewById(R.id.placeToggleButton)
+    }
+
+    private val paymentToggleButton: ToggleButton by lazy{
+        findViewById(R.id.paymentToggleButton)
+    }
+
     private val userDB: DatabaseReference by lazy {
         Firebase.database.reference.child(DBKey.DB_USERS)
     }
@@ -128,6 +151,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     private var groupID: String?= null
     private lateinit var day: String
 
+    private var isEditMode: Boolean = false
+
     private lateinit var locationSource: FusedLocationSource
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private lateinit var locationCallback: LocationCallback
@@ -166,7 +191,51 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
 
         initToolBar()
+        initClickListener()
+
         navigationView.setNavigationItemSelectedListener(this)
+    }
+
+    private fun initClickListener(){
+        editMarkerButton.setOnClickListener {
+            //todo 편집모드
+
+            isEditMode = true
+            editMarkerButton.isVisible = false
+            watchMarkerButton.isVisible = true
+        }
+
+        watchMarkerButton.setOnClickListener {
+            //todo 보기모드
+
+            isEditMode = false
+            editMarkerButton.isVisible = true
+            watchMarkerButton.isVisible = false
+        }
+
+        photoZoneToggleButton.setOnClickListener {
+            if(photoZoneToggleButton.isChecked) {
+                //todo 포토존 마커 보이기
+            }else{
+                //todo 포토존 마커 없애기
+            }
+        }
+
+        placeToggleButton.setOnClickListener {
+            if(placeToggleButton.isChecked){
+                //todo 장소 마커 보이기
+            }else{
+                //todo 장소 마커 없애기
+            }
+        }
+
+        paymentToggleButton.setOnClickListener {
+            if(paymentToggleButton.isChecked){
+                //todo 결제 마커 보이기
+            }else{
+                //todo 결제 마커 없애기
+            }
+        }
     }
 
     private fun initToolBar() {
@@ -880,6 +949,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                             // 위치 넘겨주기
                             intent.putExtra("Lat", it.position.latitude)
                             intent.putExtra("Long", it.position.longitude)
+                            intent.putExtra("mode",isEditMode)
 
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                             startActivity(intent)

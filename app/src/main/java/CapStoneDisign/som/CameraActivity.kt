@@ -1,10 +1,10 @@
 package CapStoneDisign.som
 
-import CapStoneDisign.som.Model.UserModel
 import CapStoneDisign.som.databinding.CameraLayoutBinding
 import android.Manifest
 import android.content.pm.PackageManager
 import android.location.Location
+import android.media.MediaActionSound
 import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
@@ -19,18 +19,15 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.getValue
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.io.File
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.*
+
 
 class CameraActivity : AppCompatActivity() {
 
@@ -80,6 +77,10 @@ class CameraActivity : AppCompatActivity() {
         binding.cameraCaptureButton.setOnClickListener {
             takePhoto()
             startLocationUpdates()
+
+            val sound = MediaActionSound()
+
+            sound.play(MediaActionSound.SHUTTER_CLICK)
         }
 
         mLocationRequest =  LocationRequest.create().apply {
@@ -99,9 +100,12 @@ class CameraActivity : AppCompatActivity() {
             && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return
         }
+        Log.d("camera count1","$count")
         // 기기의 위치에 관한 정기 업데이트를 요청하는 메서드 실행
         // 지정한 루퍼 스레드(Looper.myLooper())에서 콜백(mLocationCallback)으로 위치 업데이트를 요청
-        mFusedLocationProviderClient!!.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper())
+        mFusedLocationProviderClient!!.requestLocationUpdates(mLocationRequest, mLocationCallback,
+            Looper.myLooper()!!
+        )
     }
 
     private val mLocationCallback = object : LocationCallback() {
@@ -109,6 +113,7 @@ class CameraActivity : AppCompatActivity() {
             // 시스템에서 받은 location 정보를 onLocationChanged()에 전달
             locationResult.lastLocation
             onLocationChanged(locationResult.lastLocation)
+            Log.d("camera count2","$count")
         }
     }
 
@@ -141,6 +146,8 @@ class CameraActivity : AppCompatActivity() {
                 standardLongitude = mLastLocation.longitude
             }
         }
+
+        Log.d("camera count","$count")
 
         if(count > 5){
             /*todo (standardLatitude, standardLongitude)에 photoZone tag 를 달은 마커를 생성
