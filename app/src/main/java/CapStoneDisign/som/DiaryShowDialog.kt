@@ -50,7 +50,6 @@ class DiaryShowDialog:AppCompatActivity() {
     private lateinit var myTextEditCompleteButtonInDiary:Button
     lateinit var storage: FirebaseStorage
 
-    var isEditMode = intent.getBooleanExtra("isEditMode",false)
 
 
     private val auth: FirebaseAuth by lazy {
@@ -117,9 +116,13 @@ class DiaryShowDialog:AppCompatActivity() {
                         val storage = FirebaseStorage.getInstance()
                         val storageRef = storage.reference
 
-                        var marker = intent.getStringExtra("marker")
-                        var fileName = "${user}/${marker}"
-                        var fileNameForPartner = "${partnerId!!}/${marker}"
+                        var day = intent.getStringExtra("day")
+                        var tmpLat = intent.getDoubleExtra("Lat", 0.0)
+                        var tmpLong = intent.getDoubleExtra("Long", 0.0)
+                        var docName = "$day:$tmpLat:$tmpLong"
+
+                        var fileName = "${user}/${docName}"
+                        var fileNameForPartner = "${partnerId!!}/${docName}"
 
                         storageRef.child("image").child(fileName).downloadUrl.addOnSuccessListener { uri -> //이미지 로드 성공시
                             Glide.with(applicationContext)
@@ -227,6 +230,8 @@ class DiaryShowDialog:AppCompatActivity() {
         partnerImageViewInDiary = findViewById(R.id.partnerImageViewInDiary)
 
         myImageEditButtonInDiary = findViewById(R.id.myImageEditButtonInDiary)
+
+        val isEditMode =  intent.getBooleanExtra("mode",false)
 
         if(isEditMode){
             myImageEditButtonInDiary.isVisible = true
@@ -364,10 +369,13 @@ class DiaryShowDialog:AppCompatActivity() {
                     }
 
 
-                    var marker = intent.getStringExtra("marker")
-                    var fileName = "${user}/${marker}"
+                    var day = intent.getStringExtra("day")
+                    var tmpLat = intent.getDoubleExtra("Lat", 0.0)
+                    var tmpLong = intent.getDoubleExtra("Long", 0.0)
+                    var docName = "$day:$tmpLat:$tmpLong"
 
-                    Log.d("markerFileName",fileName)
+                    var fileName = "${user}/${docName}"
+                    Log.d("markerFileName",docName)
                     storage.getReference().child("image").child(fileName).delete()
                     storage.getReference().child("image").child(fileName)
                         .putFile(selectedImageUri)

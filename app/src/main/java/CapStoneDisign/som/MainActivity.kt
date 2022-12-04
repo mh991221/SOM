@@ -643,6 +643,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 Log.d("mylog","그룹아이디 $groupID")
                 intent.putExtra("day", LocalDate.now().toString())
                 intent.putExtra("groupID", groupID)
+
                 startActivity(intent)
             }
             R.id.QRIcon ->{

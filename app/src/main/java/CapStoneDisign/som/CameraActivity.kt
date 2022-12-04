@@ -19,11 +19,15 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.*
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
 import java.io.File
 import java.text.SimpleDateFormat
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.*
@@ -53,7 +57,10 @@ class CameraActivity : AppCompatActivity() {
     private var presentLongitude = 0.0
     private val numberToCalculateDistance = 6372.8 * 1000
 
+    lateinit var storage: FirebaseStorage
+
     var count = 0
+    val stackImage = Stack<Uri>()
 
     val CAMERA_PERMISSION = arrayOf(Manifest.permission.CAMERA)
     val CAMERA_PERMISSION_REQUEST = 100
@@ -62,6 +69,13 @@ class CameraActivity : AppCompatActivity() {
         Manifest.permission.READ_EXTERNAL_STORAGE,
         Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
+    private val auth: FirebaseAuth by lazy {
+        Firebase.auth
+    }
+
+    private val user = auth.currentUser!!.uid
+    lateinit var fileName: String
+    var imageCount = 0
     val STORAGE_PERMISSION_REQUEST = 200
     private var isMarkerCreated = false
 
@@ -157,6 +171,11 @@ class CameraActivity : AppCompatActivity() {
             }else{
                 isMarkerCreated = false
                 count = 1
+                var topUri = stackImage.pop()
+                while(stackImage.isNotEmpty()){
+                    stackImage.pop()
+                }
+                stackImage.push(topUri)
                 standardLatitude = mLastLocation.latitude
                 standardLongitude = mLastLocation.longitude
             }
@@ -176,6 +195,8 @@ class CameraActivity : AppCompatActivity() {
             var day = intent.getStringExtra("day")
             var groupID = intent.getStringExtra("groupID")
 
+            val storage = FirebaseStorage.getInstance()
+
             // 위치 값 토대로, 포토존으로 만들어진 마커에 대한 정보를 꾸린다.
             var tag = "photo"
             val marker = hashMapOf(
@@ -185,6 +206,18 @@ class CameraActivity : AppCompatActivity() {
             )
             // 마커를 특정하기 위해, 위치정보를 토대로 마커의 이름을 만든다.
             var docName = "$standardLatitude:$standardLongitude"
+
+            fileName = "${groupID}:photo/$day:$standardLatitude:$standardLongitude"
+
+            imageCount = 0
+            while(stackImage.isNotEmpty()){
+                var topImageUri = stackImage.pop()
+                Log.d("topImageUri","$topImageUri")
+                storage.getReference().child("image").child(fileName).child(imageCount.toString())
+                    .putFile(topImageUri)
+                imageCount++
+            }
+
 
             db.collection(groupID.toString())
                 .document(day.toString())
@@ -201,8 +234,21 @@ class CameraActivity : AppCompatActivity() {
                         e
                     )
                 }
+        }else if(count > 5 && isMarkerCreated){
+            var day = intent.getStringExtra("day")
+            var groupID = intent.getStringExtra("groupID")
+
+            val storage = FirebaseStorage.getInstance()
+
+            if(stackImage.isNotEmpty()){
+                var topImageUri = stackImage.pop()
+                storage.getReference().child("image").child(fileName).child(imageCount.toString())
+                    .putFile(topImageUri)
+                Log.d("topImageUri2","$topImageUri")
+            }
 
         }
+
     }
 
 
@@ -275,6 +321,10 @@ class CameraActivity : AppCompatActivity() {
 
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = Uri.fromFile(photoFile)
+                    stackImage.push(savedUri)
+                    var topUri = stackImage.pop()
+                    stackImage.push(savedUri)
+                    Log.d("uriCheck","$topUri")
                 }
             })
     }
