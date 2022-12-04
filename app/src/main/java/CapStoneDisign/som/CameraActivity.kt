@@ -63,6 +63,7 @@ class CameraActivity : AppCompatActivity() {
         Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
     val STORAGE_PERMISSION_REQUEST = 200
+    private var isMarkerCreated = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -73,19 +74,16 @@ class CameraActivity : AppCompatActivity() {
         startCamera()
         checkPermission(CAMERA_PERMISSION, CAMERA_PERMISSION_REQUEST)
         checkPermission(STORAGE_PERMISSION, STORAGE_PERMISSION_REQUEST)
-
-        binding.cameraCaptureButton.setOnClickListener {
-            takePhoto()
-            startLocationUpdates()
-
-            val sound = MediaActionSound()
-
-            sound.play(MediaActionSound.SHUTTER_CLICK)
-        }
-
         mLocationRequest =  LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
+        binding.cameraCaptureButton.setOnClickListener {
+            takePhoto()
+            startLocationUpdates()
+            val sound = MediaActionSound()
+            sound.play(MediaActionSound.SHUTTER_CLICK)
+        }
+
 
         outputDirectory = getOutputDirectory()
 
@@ -100,20 +98,35 @@ class CameraActivity : AppCompatActivity() {
             && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return
         }
-        Log.d("camera count1","$count")
         // 기기의 위치에 관한 정기 업데이트를 요청하는 메서드 실행
         // 지정한 루퍼 스레드(Looper.myLooper())에서 콜백(mLocationCallback)으로 위치 업데이트를 요청
         mFusedLocationProviderClient!!.requestLocationUpdates(mLocationRequest, mLocationCallback,
-            Looper.myLooper()!!
+            Looper.myLooper()
         )
+
+        mFusedLocationProviderClient!!.lastLocation
+            .addOnSuccessListener { location ->
+                if(location == null) {
+                    Log.e("camera1", "location get fail")
+                } else {
+                    onLocationChanged(location)
+
+                    Log.d("camera1", "${location.latitude} , ${location.longitude},$count")
+                }
+            }
+            .addOnFailureListener {
+                Log.e("camera1", "location error is ${it.message}")
+                it.printStackTrace()
+            }
+
     }
 
     private val mLocationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
+            Log.d("camera count2","$count")
             // 시스템에서 받은 location 정보를 onLocationChanged()에 전달
             locationResult.lastLocation
             onLocationChanged(locationResult.lastLocation)
-            Log.d("camera count2","$count")
         }
     }
 
@@ -124,6 +137,7 @@ class CameraActivity : AppCompatActivity() {
 //        text1.text = "경도 : " + mLastLocation.longitude // 갱신 된 경도
 
         if(count == 0){
+            isMarkerCreated = false
             standardLatitude = mLastLocation.latitude
             standardLongitude = mLastLocation.longitude
             count++
@@ -141,22 +155,23 @@ class CameraActivity : AppCompatActivity() {
             if(distance <= 100){
                 count++
             }else{
+                isMarkerCreated = false
                 count = 1
                 standardLatitude = mLastLocation.latitude
                 standardLongitude = mLastLocation.longitude
             }
         }
 
-        Log.d("camera count","$count")
 
-        if(count > 5){
+
+        if(count > 5 && !isMarkerCreated){
             /*todo (standardLatitude, standardLongitude)에 photoZone tag 를 달은 마커를 생성
              내 생각엔 마커에 tag를 저장할 필요가 있는데 이건 어떻게 할까 그 diary 저장한 거기에 tag 도 같이 저장할 수 있나
              포토존 태그를 달면 사진 uri도 저장해야해서 marker 이름으로 폴더를 하나 만드는게 좋아보임
              그니까 userID -> 날짜 -> marker이름 -> tag, uri, text 이런식
              현시점에서 바로 보여줄 필요 없음(naverMap 이랑 일일히 연결하기 귀찮을거 같음)
              그냥 DB Marker 에 넣어만 두고 나중에 불러올때만 나타나도록 해주세요 */
-
+            isMarkerCreated = true
             // 메인에서 받아온 오늘의 날짜
             var day = intent.getStringExtra("day")
             var groupID = intent.getStringExtra("groupID")
