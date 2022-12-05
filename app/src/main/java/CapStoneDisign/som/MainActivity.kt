@@ -45,6 +45,7 @@ import com.naver.maps.map.overlay.MultipartPathOverlay
 import com.naver.maps.map.overlay.MultipartPathOverlay.ColorPart
 import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.util.FusedLocationSource
+import com.naver.maps.map.util.MarkerIcons
 import com.naver.maps.map.widget.LocationButtonView
 import java.time.LocalDate
 import kotlin.math.*
@@ -104,6 +105,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     private val paymentToggleButton: ToggleButton by lazy{
         findViewById(R.id.paymentToggleButton)
+    }
+
+    private val clickedToggleButton: ToggleButton by lazy{
+        findViewById(R.id.clickedToggleButton)
     }
 
     private val userDB: DatabaseReference by lazy {
@@ -199,41 +204,84 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     private fun initClickListener(){
         editMarkerButton.setOnClickListener {
             //todo 편집모드
+            // 그 날의 기록에 존재하는 모든 마커 띄우기
 
             isEditMode = true
             editMarkerButton.isVisible = false
             watchMarkerButton.isVisible = true
+
+            for (i: Int in 0..markers.lastIndex) {
+                drawMarker(i)
+            }
         }
 
         watchMarkerButton.setOnClickListener {
             //todo 보기모드
+            // 그 날의 기록 중 텍스트를 입력한 텍스트만 골라서 띄우기
 
             isEditMode = false
             editMarkerButton.isVisible = true
             watchMarkerButton.isVisible = false
+            
+            // marker에 들어있는 애들 중 텍스트 입력 안 된 애들의 map에 null 넣어주기
+
+            for (i: Int in 0..markers.lastIndex) {
+                drawMarker(i)
+            }
         }
 
         photoZoneToggleButton.setOnClickListener {
+            /*
             if(photoZoneToggleButton.isChecked) {
-                //todo 포토존 마커 보이기
-            }else{
                 //todo 포토존 마커 없애기
+            }
+            else{
+                //todo 포토존 마커 보이기
+            }
+            */
+            for (i: Int in 0..markers.lastIndex) {
+                drawMarker(i)
             }
         }
 
         placeToggleButton.setOnClickListener {
+            /*
             if(placeToggleButton.isChecked){
-                //todo 장소 마커 보이기
-            }else{
                 //todo 장소 마커 없애기
+            }else{
+                //todo 장소 마커 보이기
+            }
+            */
+            for (i: Int in 0..markers.lastIndex) {
+                drawMarker(i)
             }
         }
 
         paymentToggleButton.setOnClickListener {
+            /*
             if(paymentToggleButton.isChecked){
-                //todo 결제 마커 보이기
-            }else{
                 //todo 결제 마커 없애기
+            }else{
+                //todo 결제 마커 보이기
+            }
+            */
+            for (i: Int in 0..markers.lastIndex) {
+                drawMarker(i)
+            }
+        }
+        
+        // todo 클릭으로 만들어진 애들 보여줄지 선택하는 기능도 추가하는 게 맞지 않나?
+        // 일단 내가 임의로 기능 만들어서 넣어봄
+        clickedToggleButton.setOnClickListener {
+            /*
+            if(clickedToggleButton.isChecked){
+                //todo 클릭 마커 없애기
+            }else{
+                //todo 클릭 마커 보이기
+            }
+            */
+            for (i: Int in 0..markers.lastIndex) {
+                drawMarker(i)
             }
         }
     }
@@ -368,10 +416,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
                             // 위치 값 토대로, 방문으로 만들어진 마커에 대한 정보를 꾸린다.
                             var tag = "visited"
+                            var wrote = 0
                             val marker = hashMapOf(
                                 "tag" to tag,
                                 "Latitude" to tmpLat,
                                 "Longitude" to tmpLong,
+                                "wrote" to wrote
                             )
                             // 다큐먼트를 특정하기 위해, 다큐먼트의 이름을 좌표값을 이용해 만들어낸다.
                             var docName = "$tmpLat:$tmpLong"
@@ -699,10 +749,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
                 // 위치 값 토대로, 클릭으로 만들어진 마커에 대한 정보를 꾸린다.
                 var tag = "clicked"
+                var wrote = 0
                 val marker = hashMapOf(
                     "tag" to tag,
                     "Latitude" to tmpLat,
-                    "Longitude" to tmpLong
+                    "Longitude" to tmpLong,
+                    "wrote" to wrote
                 )
                 // 다큐먼트를 특정하기 위해, 다큐먼트의 이름을 좌표값을 이용해 만들어낸다.
                 var docName = "$tmpLat:$tmpLong"
@@ -806,6 +858,56 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1000
+    }
+
+    private fun drawMarker(i: Int) {
+        if (isEditMode) {
+            // 포토존 보겠다고 선언해놨으면 포토존 띄우기
+            if(markers[i].icon == MarkerIcons.LIGHTBLUE && !photoZoneToggleButton.isChecked) {
+                markers[i].map = naverMap
+            }
+            // 장소 마크 보겠다고 선언해놨으면 장소마크 띄우기
+            else if(markers[i].icon == MarkerIcons.YELLOW && !placeToggleButton.isChecked) {
+                markers[i].map = naverMap
+            }
+            // 결제 마크 보겠다고 선언해놨으면 결제마크 띄우기
+            else if(markers[i].icon == MarkerIcons.RED && !paymentToggleButton.isChecked) {
+                markers[i].map = naverMap
+            }
+            // 클릭 마크 보겠다고 선언해놨으면 클릭마크 띄우기
+            else if(markers[i].icon == MarkerIcons.GREEN && !clickedToggleButton.isChecked) {
+                markers[i].map = naverMap
+            }
+            else {
+                markers[i].map = null
+            }
+        }
+        else {
+            if (markers[i].captionText == "  ") {
+                // 포토존 보겠다고 선언해놨으면 포토존 띄우기
+                if(markers[i].icon == MarkerIcons.LIGHTBLUE && !photoZoneToggleButton.isChecked) {
+                    markers[i].map = naverMap
+                }
+                // 장소 마크 보겠다고 선언해놨으면 장소마크 띄우기
+                else if(markers[i].icon == MarkerIcons.YELLOW && !placeToggleButton.isChecked) {
+                    markers[i].map = naverMap
+                }
+                // 결제 마크 보겠다고 선언해놨으면 결제마크 띄우기
+                else if(markers[i].icon == MarkerIcons.RED && !paymentToggleButton.isChecked) {
+                    markers[i].map = naverMap
+                }
+                // 클릭 마크 보겠다고 선언해놨으면 클릭마크 띄우기
+                else if(markers[i].icon == MarkerIcons.GREEN && !clickedToggleButton.isChecked) {
+                    markers[i].map = naverMap
+                }
+                else {
+                    markers[i].map = null
+                }
+            }
+            else {
+                markers[i].map = null
+            }
+        }
     }
 
     // date를 다큐먼트의 키 값으로 갖는 기록 불러옵니다.
@@ -927,11 +1029,47 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                     // 지도에 그릴 마커 하나 추가
                     markers.add(Marker())
                     // 현재 다큐먼트의 좌표값 받아서 지도에 그릴 마커의 좌표값으로 적어주기
-                    markers[markers.lastIndex].position = LatLng(document["Latitude"] as Double,
+                    markers[markers.lastIndex].position = LatLng(
+                        document["Latitude"] as Double,
                         document["Longitude"] as Double
                     )
+                    // 마커의 종류에 따라 서로 다른 색의 마커를 만들어준다.
+                    if (document["tag"] as String == "photo") {
+                        // 포토존 마커는 하늘색
+                        markers[markers.lastIndex].icon = MarkerIcons.LIGHTBLUE
+                    }
+                    else if (document["tag"] as String == "visited") {
+                        // 방문 마커는 노란색
+                        markers[markers.lastIndex].icon = MarkerIcons.YELLOW
+                    }
+                    else if (document["tag"] as String == "payment") {
+                        // 결제 마커는 빨간색
+                        markers[markers.lastIndex].icon = MarkerIcons.RED
+                    }
+                    else if (document["tag"] as String == "clicked") {
+                        // 클릭 마커는 초록색
+                        markers[markers.lastIndex].icon = MarkerIcons.GREEN
+                    }
+                    // 편집되었는지의 여부를 캡션으로 해볼까? " "인지 "  "인지로 구분해보는거지.
+                    if (document["wrote"] != null) {
+                        // 마커가 편집된 애일 때
+                        if (document["wrote"] as Long == 1L) {
+                            markers[markers.lastIndex].captionText = "  "
+                        }
+                        // 마커가 편집 안 된 애일 때
+                        else if (document["wrote"] as Long == 1L) {
+                            markers[markers.lastIndex].captionText = " "
+                        }
+                    }
+                    // 마커가 편집 안 된 애일 때
+                    else if (document["wrote"] == null) {
+                        markers[markers.lastIndex].captionText = " "
+                    }
+                    /*
                     // 좌표값 적어준 후 지도에 그려주기
                     markers[markers.lastIndex].map = naverMap
+                     */
+                    drawMarker(markers.lastIndex)
                     // 클릭 리스너 달아주기
                     markers[markers.lastIndex].setOnClickListener {
                         if (it is Marker) {

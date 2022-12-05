@@ -199,10 +199,12 @@ class CameraActivity : AppCompatActivity() {
 
             // 위치 값 토대로, 포토존으로 만들어진 마커에 대한 정보를 꾸린다.
             var tag = "photo"
+            var wrote = 0
             val marker = hashMapOf(
                 "tag" to tag,
                 "Latitude" to standardLatitude,
                 "Longitude" to standardLongitude,
+                "wrote" to wrote
             )
             // 마커를 특정하기 위해, 위치정보를 토대로 마커의 이름을 만든다.
             var docName = "$standardLatitude:$standardLongitude"
