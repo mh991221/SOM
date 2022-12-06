@@ -408,7 +408,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                         // 현재는 1초에 한 번씩 gps 받아오니까,
                         // 일단 실험용으로 10초 동안 머물면 마커 생성되게 해봤음.
                         // count가 1 올라갈 때마다 1초 지나는 거
-                        if (count > 10) {
+                        if (count > 1800) {
                             // 생성될 마커의 위치값 받아온다.
                             var tmp = routes[routes.lastIndex][routes[routes.lastIndex].lastIndex]
                             var tmpLat = tmp.latitude
@@ -721,6 +721,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 markers[markers.lastIndex].position = LatLng(tmp.latitude, tmp.longitude)
                 markers[markers.lastIndex].map = naverMap
                 markers[markers.lastIndex].setOnClickListener{
+
+
                     if(it is com.naver.maps.map.overlay.Marker){
                         android.widget.Toast.makeText(this,"마커가 선택되었습니다", android.widget.Toast.LENGTH_SHORT).show()
                         val intent = android.content.Intent(
@@ -1089,6 +1091,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                             intent.putExtra("Lat", it.position.latitude)
                             intent.putExtra("Long", it.position.longitude)
                             intent.putExtra("mode",isEditMode)
+                            intent.putExtra("groupID", groupID)
                             // 마커 종류 넘겨주기
                             // 포토존일 경우 "photo" 넘긴다.
                             if (it.icon == MarkerIcons.LIGHTBLUE) {

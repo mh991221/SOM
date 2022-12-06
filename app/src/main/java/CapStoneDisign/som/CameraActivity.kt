@@ -237,9 +237,6 @@ class CameraActivity : AppCompatActivity() {
                     )
                 }
         }else if(count > 5 && isMarkerCreated){
-            var day = intent.getStringExtra("day")
-            var groupID = intent.getStringExtra("groupID")
-
             val storage = FirebaseStorage.getInstance()
 
             if(stackImage.isNotEmpty()){

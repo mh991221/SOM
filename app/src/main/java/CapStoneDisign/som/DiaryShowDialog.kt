@@ -48,6 +48,10 @@ class DiaryShowDialog:AppCompatActivity() {
     private lateinit var partnerImageViewInDiary: ImageView
     private lateinit var myDiaryEditTextView: EditText
     private lateinit var myTextEditCompleteButtonInDiary:Button
+    private lateinit var tagView: TextView
+    private lateinit var photoWatchTextView: TextView
+    private lateinit var placeWatchTextView: TextView
+
     lateinit var storage: FirebaseStorage
 
 
@@ -230,6 +234,29 @@ class DiaryShowDialog:AppCompatActivity() {
         partnerImageViewInDiary = findViewById(R.id.partnerImageViewInDiary)
 
         myImageEditButtonInDiary = findViewById(R.id.myImageEditButtonInDiary)
+        val tag = intent.getStringExtra("tag")
+
+        tagView = findViewById(R.id.tagView)
+        photoWatchTextView = findViewById(R.id.photoWatchTextView)
+        placeWatchTextView = findViewById(R.id.placeWatchTextView)
+
+        when (tag) {
+            "photo" -> {
+                tagView.text = "포토존"
+                photoWatchTextView.isVisible = true
+            }
+            "place" -> {
+                tagView.text = "머무른 장소"
+                placeWatchTextView.isVisible = true
+            }
+            "payment" -> {
+                tagView.text = "결제 마커"
+            }
+            "clicked" -> {
+                tagView.text = "클릭 마커"
+            }
+        }
+
 
         val isEditMode =  intent.getBooleanExtra("mode",false)
 
@@ -243,6 +270,27 @@ class DiaryShowDialog:AppCompatActivity() {
     }
 
     private fun initButtonListener(){
+
+        var day = intent.getStringExtra("day")
+        var tmpLat = intent.getDoubleExtra("Lat", 0.0)
+        var tmpLong = intent.getDoubleExtra("Long", 0.0)
+        var docName = "$day:$tmpLat:$tmpLong"
+        var groupID = intent.getStringExtra("groupID")
+
+        var fileName = "${groupID}:photo/$day:$tmpLat:$tmpLong"
+
+        photoWatchTextView.setOnClickListener {
+            val intent = Intent(this, ViewPagerActivity::class.java)
+            intent.putExtra("fileName",fileName)
+            startActivity(intent)
+
+        }
+
+        placeWatchTextView.setOnClickListener {
+
+        }
+
+
         myImageEditButtonInDiary.setOnClickListener {
             when{
                 ContextCompat.checkSelfPermission(

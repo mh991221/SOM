@@ -12,4 +12,6 @@
     <string name="login">로그인</string>
     <string name="sign_up">회원가입</string>
     <string name="dateButton">데이트 시작</string>
+    <string name="watchPhoto"><u>사진 보기</u></string>
+    <string name="watchPlace"><u>머무른 시간 보기</u></string>
 </resources>
