@@ -29,8 +29,7 @@ class ViewPagerActivity : AppCompatActivity() {
         getPhotoList()
 
         Log.d("urichecking", "$uriList")
-        viewpager.adapter = ViewPagerAdapter(this, uriList)
-        viewpager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+
     }
 
     private fun getPhotoList() {
@@ -52,22 +51,27 @@ class ViewPagerActivity : AppCompatActivity() {
                             Log.d("secondTmpUri","$tmpUrl")
                             Log.d("urichecking2","${task.result}")
                             uriList.add(tmpUrl)
-                            Glide.with(applicationContext)
-                                .load(tmpUrl)
-                                .fitCenter()
-                                .into(photoZoneViewPager)
+//                            Glide.with(applicationContext)
+//                                .load(tmpUrl)
+//                                .fitCenter()
+//                                .into(photoZoneViewPager)
                         } else {
                             // URL을 가져오지 못하면 토스트 메세지
                             Toast.makeText(this, "Uri를 불러오지 못했습니다.", Toast.LENGTH_SHORT).show()
                         }
+                        Log.d("urichecking3", "$uriList")
+                        viewpager.adapter = ViewPagerAdapter(this, uriList)
+                        viewpager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
                     }.addOnFailureListener {
                         // Uh-oh, an error occurred!
                     }
-
+                    Log.d("urichecking2", "$uriList")
                 }
+                Log.d("urichecking1", "$uriList")
+
             }
         Log.d("thirdTmpUri","$tmpUrl")
-        Log.d("urichecking", "$uriList")
+
     }
 
 }

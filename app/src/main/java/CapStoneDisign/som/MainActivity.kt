@@ -57,6 +57,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
     //Firestore 레퍼런스. 이거 써서 Firestore에 값 올리고 내린다.
     val db = Firebase.firestore
 
+
+    var isCreated:Boolean = false
     //현재 데이트 중인 경로 좌표들의 리스트
     var routes = mutableListOf<MutableList<LatLng>>()
 
@@ -399,6 +401,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                             if(distance <= 100){
                                 count++
                             }else{
+                                isCreated = false // 거리가 멀어지면 다시 isCreated를 false로 해서 마커 생성 가능하게 함
                                 count = 1
                                 standardLatitude = presentLatitude
                                 standardLongitude = presentLongitude
@@ -408,7 +411,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                         // 현재는 1초에 한 번씩 gps 받아오니까,
                         // 일단 실험용으로 10초 동안 머물면 마커 생성되게 해봤음.
                         // count가 1 올라갈 때마다 1초 지나는 거
-                        if (count > 1800) {
+                        if (count > 1800 && !isCreated) {  // 해당 위치에서 이미 마커가 생성된적이 있다면 생성하지 않음
+                            isCreated = true                // 따라서 마커를 생성할때 isCreated를 true로 바꿈
                             // 생성될 마커의 위치값 받아온다.
                             var tmp = routes[routes.lastIndex][routes[routes.lastIndex].lastIndex]
                             var tmpLat = tmp.latitude
