@@ -1089,6 +1089,23 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                             intent.putExtra("Lat", it.position.latitude)
                             intent.putExtra("Long", it.position.longitude)
                             intent.putExtra("mode",isEditMode)
+                            // 마커 종류 넘겨주기
+                            // 포토존일 경우 "photo" 넘긴다.
+                            if (it.icon == MarkerIcons.LIGHTBLUE) {
+                                intent.putExtra("tag", "photo")
+                            }
+                            // 방문마커일 경우 "visited" 넘긴다.
+                            else if (it.icon == MarkerIcons.YELLOW) {
+                                intent.putExtra("tag", "visited")
+                            }
+                            // 결제마커일 경우 "payment" 넘긴다.
+                            else if (it.icon == MarkerIcons.RED) {
+                                intent.putExtra("tag", "payment")
+                            }
+                            // 클릭마커일 경우 "clicked" 넘긴다.
+                            else if (it.icon == MarkerIcons.GREEN) {
+                                intent.putExtra("tag", "clicked")
+                            }
 
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                             startActivity(intent)
