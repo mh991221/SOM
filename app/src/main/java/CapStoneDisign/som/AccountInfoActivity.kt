@@ -26,6 +26,7 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.database.ktx.getValue
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import java.util.*
@@ -82,6 +83,8 @@ class AccountInfoActivity : AppCompatActivity() {
     var count: Int = 0
     lateinit var storage: FirebaseStorage
 
+    val db = Firebase.firestore
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_account_info)
@@ -126,6 +129,23 @@ class AccountInfoActivity : AppCompatActivity() {
         //todo
         //countOfDateTextView.text = 여기에 만난 document 수 세어서 넣으면 됨!
         //필요하면 putExtra 활용하면 될듯
+
+        val curruser = userDB.child(user)
+        curruser.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                userModel = snapshot.getValue<UserModel>()
+
+                val currentGroup = groupDB.child(userModel?.groupID!!)
+                db.collection(userModel?.groupID.toString())
+                    .get()
+                    .addOnSuccessListener { snapshot->
+                        Log.d("mylog","${snapshot.size()}")
+                        countOfDateTextView.text = snapshot.size().toString()
+                    }
+
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
     }
 
     private fun initPhoto(){
