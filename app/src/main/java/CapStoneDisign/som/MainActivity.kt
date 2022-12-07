@@ -401,68 +401,71 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                             if(distance <= 100){
                                 count++
                             }else{
-                                isCreated = false // 거리가 멀어지면 다시 isCreated를 false로 해서 마커 생성 가능하게 함
-                                count = 1
+
+                                // 현재는 1초에 한 번씩 gps 받아오니까,
+                                // 일단 실험용으로 10초 동안 머물면 마커 생성되게 해봤음.
+                                // count가 1 올라갈 때마다 1초 지나는 거
+                                if (count > 1800 /* && !isCreated*/) {  // 해당 위치에서 이미 마커가 생성된적이 있다면 생성하지 않음
+                                    // isCreated = true                // 따라서 마커를 생성할때 isCreated를 true로 바꿈
+
+                                    // iscreated는 일단 없앴음 머물다 떠날 때 마커 만든다면 어차피 동시에 여러개 생길 일은 없겠지
+
+                                    // 생성될 마커의 위치값 받아온다.
+                                    var tmp = routes[routes.lastIndex][routes[routes.lastIndex].lastIndex]
+                                    var tmpLat = tmp.latitude
+                                    var tmpLong = tmp.longitude
+
+                                    // 위치 값 토대로, 방문으로 만들어진 마커에 대한 정보를 꾸린다.
+                                    var tag = "visited"
+                                    var wrote = 0
+                                    val marker = hashMapOf(
+                                        "tag" to tag,
+                                        "Latitude" to tmpLat,
+                                        "Longitude" to tmpLong,
+                                        "wrote" to wrote,
+                                        "time" to count
+                                    )
+                                    // 다큐먼트를 특정하기 위해, 다큐먼트의 이름을 좌표값을 이용해 만들어낸다.
+                                    var docName = "$tmpLat:$tmpLong"
+
+                                    // 현재 사용자가 누구인지 확인
+                                    val curruser = userDB.child(auth.currentUser!!.uid)
+                                    // 현재 사용자의 정보 기반으로 DB에 값 저장
+                                    curruser.addValueEventListener(object : ValueEventListener {
+                                        // ?? 이건 왜 필요하다냐?
+                                        @RequiresApi(Build.VERSION_CODES.O)
+                                        override fun onDataChange(snapshot: DataSnapshot) {
+                                            userModel = snapshot.getValue<UserModel>()
+
+                                            //컬렉션: 그룹ID, 다큐먼트: 날짜와 시간, 내용: 경로들
+                                            db.collection(userModel?.groupID.toString())
+                                                .document(LocalDate.now().toString())
+                                                .collection("marker")
+                                                .document(docName)
+                                                .set(marker, SetOptions.merge())
+                                                .addOnSuccessListener {
+                                                    Log.d("Mylog", "방문 마커 저장 완료!")
+                                                }
+                                                .addOnFailureListener { e ->
+                                                    Log.w(
+                                                        "MyLog",
+                                                        "방문 마커 저장 실패함!",
+                                                        e
+                                                    )
+                                                }
+                                        }
+
+                                        override fun onCancelled(error: DatabaseError) {}
+                                    })
+                                }
+
+                                //isCreated = false // 거리가 멀어지면 다시 isCreated를 false로 해서 마커 생성 가능하게 함
+                                count = 0
                                 standardLatitude = presentLatitude
                                 standardLongitude = presentLongitude
                             }
                         }
 
-                        // 현재는 1초에 한 번씩 gps 받아오니까,
-                        // 일단 실험용으로 10초 동안 머물면 마커 생성되게 해봤음.
-                        // count가 1 올라갈 때마다 1초 지나는 거
-                        if (count > 1800 && !isCreated) {  // 해당 위치에서 이미 마커가 생성된적이 있다면 생성하지 않음
-                            isCreated = true                // 따라서 마커를 생성할때 isCreated를 true로 바꿈
-                            // 생성될 마커의 위치값 받아온다.
-                            var tmp = routes[routes.lastIndex][routes[routes.lastIndex].lastIndex]
-                            var tmpLat = tmp.latitude
-                            var tmpLong = tmp.longitude
-
-                            // 위치 값 토대로, 방문으로 만들어진 마커에 대한 정보를 꾸린다.
-                            var tag = "visited"
-                            var wrote = 0
-                            val marker = hashMapOf(
-                                "tag" to tag,
-                                "Latitude" to tmpLat,
-                                "Longitude" to tmpLong,
-                                "wrote" to wrote
-                            )
-                            // 다큐먼트를 특정하기 위해, 다큐먼트의 이름을 좌표값을 이용해 만들어낸다.
-                            var docName = "$tmpLat:$tmpLong"
-
-                            // 현재 사용자가 누구인지 확인
-                            val curruser = userDB.child(auth.currentUser!!.uid)
-                            // 현재 사용자의 정보 기반으로 DB에 값 저장
-                            curruser.addValueEventListener(object : ValueEventListener {
-                                // ?? 이건 왜 필요하다냐?
-                                @RequiresApi(Build.VERSION_CODES.O)
-                                override fun onDataChange(snapshot: DataSnapshot) {
-                                    userModel = snapshot.getValue<UserModel>()
-
-                                    //컬렉션: 그룹ID, 다큐먼트: 날짜와 시간, 내용: 경로들
-                                    db.collection(userModel?.groupID.toString())
-                                        .document(LocalDate.now().toString())
-                                        .collection("marker")
-                                        .document(docName)
-                                        .set(marker, SetOptions.merge())
-                                        .addOnSuccessListener {
-                                            Log.d("Mylog", "방문 마커 저장 완료!")
-                                        }
-                                        .addOnFailureListener { e ->
-                                            Log.w(
-                                                "MyLog",
-                                                "방문 마커 저장 실패함!",
-                                                e
-                                            )
-                                        }
-                                }
-
-                                override fun onCancelled(error: DatabaseError) {}
-                            })
-
-                            // 카운트 값 다시 초기화
-                            count = 0
-                        }
                         Log.d("Mylog", "현재 count 값: $count")
                     }
                     setLastLocation(location)
