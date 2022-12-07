@@ -1050,6 +1050,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                     else if (document["tag"] as String == "visited") {
                         // 방문 마커는 노란색
                         markers[markers.lastIndex].icon = MarkerIcons.YELLOW
+
+                        // 방문 마커라면, 추가적으로 몇 초 동안 머물렀는지도 같이 정보를 저장해둔다.
+                        markers[markers.lastIndex].captionRequestedWidth = (document["time"] as Long).toInt()
                     }
                     else if (document["tag"] as String == "payment") {
                         // 결제 마커는 빨간색
@@ -1107,6 +1110,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                             // 방문마커일 경우 "visited" 넘긴다.
                             else if (it.icon == MarkerIcons.YELLOW) {
                                 intent.putExtra("tag", "visited")
+
+                                // 방문마커일 경우, 머문 시간도 같이 intent에 넣어서 보내준다.
+                                intent.putExtra("time", it.captionRequestedWidth )
                             }
                             // 결제마커일 경우 "payment" 넘긴다.
                             else if (it.icon == MarkerIcons.RED) {

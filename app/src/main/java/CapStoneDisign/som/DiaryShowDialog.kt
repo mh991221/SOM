@@ -37,6 +37,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import java.time.LocalDate
+import java.util.concurrent.TimeUnit
 
 class DiaryShowDialog:AppCompatActivity() {
 
@@ -245,9 +246,29 @@ class DiaryShowDialog:AppCompatActivity() {
                 tagView.text = "포토존"
                 photoWatchTextView.isVisible = true
             }
-            "place" -> {
+            "visited" -> {
                 tagView.text = "머무른 장소"
                 placeWatchTextView.isVisible = true
+                var t = intent.getIntExtra("time", 0)
+                var time = t.toLong()
+                val day = TimeUnit.SECONDS.toDays(time).toInt()
+                val hours = TimeUnit.SECONDS.toHours(time) - day * 24
+                val minute = TimeUnit.SECONDS.toMinutes(time) - TimeUnit.SECONDS.toHours(time) * 60
+                val second = TimeUnit.SECONDS.toSeconds(time) - TimeUnit.SECONDS.toMinutes(time) * 60
+
+                var text1 = ""
+                var text2 = ""
+                var text3 = ""
+                if (hours > 0) {
+                    text1 = "${hours}시간 "
+                }
+                if (minute > 0) {
+                    text2 = "${minute}분 "
+                }
+                if (second > 0) {
+                    text3 = "${second}초 "
+                }
+                placeWatchTextView.text = text1 + text2 + text3 + "동안 머물렀습니다."
             }
             "payment" -> {
                 tagView.text = "결제 마커"
