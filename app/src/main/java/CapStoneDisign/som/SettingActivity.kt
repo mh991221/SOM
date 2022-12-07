@@ -18,24 +18,14 @@ class SettingActivity:AppCompatActivity() {
     private val visitedPlaceSwitch: Switch by lazy{
         findViewById(R.id.visitedPlaceSwitch)
     }
-    private val paymentPlaceSwitch: Switch by lazy{
-        findViewById(R.id.paymentPlaceSwitch)
-    }
+//    private val paymentPlaceSwitch: Switch by lazy{
+//        findViewById(R.id.paymentPlaceSwitch)
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.option_layout)
 
-        initSwitch()
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        initSwitch()
-    }
-
-    override fun onResume() {
-        super.onResume()
         initSwitch()
     }
 
@@ -59,6 +49,8 @@ class SettingActivity:AppCompatActivity() {
         savePaymentPlaceSwitchState()
         super.onDestroy()
     }
+
+
 
     @SuppressLint("CommitPrefEdits")
     private fun savePhotoZoneSwitchState(){
@@ -84,22 +76,22 @@ class SettingActivity:AppCompatActivity() {
         }
     }
     private fun savePaymentPlaceSwitchState(){
-        if(paymentPlaceSwitch.isChecked){
-            val editor: SharedPreferences.Editor = getSharedPreferences("com.Switch.xyz", MODE_PRIVATE).edit()
-            editor.putBoolean("PaymentPlace",true)
-            editor.apply()
-        }else{
-            val editor: SharedPreferences.Editor = getSharedPreferences("com.Switch.xyz", MODE_PRIVATE).edit()
-            editor.putBoolean("PaymentPlace",false)
-            editor.apply()
-        }
+//        if(paymentPlaceSwitch.isChecked){
+//            val editor: SharedPreferences.Editor = getSharedPreferences("com.Switch.xyz", MODE_PRIVATE).edit()
+//            editor.putBoolean("PaymentPlace",true)
+//            editor.apply()
+//        }else{
+//            val editor: SharedPreferences.Editor = getSharedPreferences("com.Switch.xyz", MODE_PRIVATE).edit()
+//            editor.putBoolean("PaymentPlace",false)
+//            editor.apply()
+//        }
     }
 
     private fun initSwitch(){
         val sharedPref: SharedPreferences = getSharedPreferences("com.Switch.xyz", MODE_PRIVATE)
         photoZoneSwitch.isChecked = sharedPref.getBoolean("PhotoZone", true)
         visitedPlaceSwitch.isChecked = sharedPref.getBoolean("VisitedPlace",true)
-        paymentPlaceSwitch.isChecked = sharedPref.getBoolean("PaymentPlace",true)
+//        paymentPlaceSwitch.isChecked = sharedPref.getBoolean("PaymentPlace",true)
     }
 
     fun getPhotoZoneIsChecked(): Boolean{

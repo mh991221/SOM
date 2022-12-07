@@ -2,6 +2,7 @@ package CapStoneDisign.som
 
 import CapStoneDisign.som.databinding.CameraLayoutBinding
 import android.Manifest
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Location
 import android.media.MediaActionSound
@@ -78,6 +79,7 @@ class CameraActivity : AppCompatActivity() {
     var imageCount = 0
     val STORAGE_PERMISSION_REQUEST = 200
     private var isMarkerCreated = false
+    private var photoZoneOptionIsChecked: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -150,103 +152,112 @@ class CameraActivity : AppCompatActivity() {
 //        text2.text = "위도 : " + mLastLocation.latitude // 갱신 된 위도
 //        text1.text = "경도 : " + mLastLocation.longitude // 갱신 된 경도
 
-        if(count == 0){
-            isMarkerCreated = false
-            standardLatitude = mLastLocation.latitude
-            standardLongitude = mLastLocation.longitude
-            count++
-        }else {
-            presentLatitude = mLastLocation.latitude
-            presentLongitude = mLastLocation.longitude
+        val sharedPref: SharedPreferences = getSharedPreferences("com.Switch.xyz", MODE_PRIVATE)
+        photoZoneOptionIsChecked= sharedPref.getBoolean("PhotoZone",true)
 
-            val dLat = Math.toRadians(presentLatitude - standardLatitude)
-            val dLon = Math.toRadians(presentLongitude - standardLongitude)
-
-            val a = sin(dLat / 2).pow(2.0) + sin(dLon / 2).pow(2.0) * cos(Math.toRadians(presentLatitude)) * cos(Math.toRadians(standardLatitude))
-            val c = 2 * asin(sqrt(a))
-            val distance =  (numberToCalculateDistance * c).toInt()
-
-            if(distance <= 100){
-                count++
-            }else{
+        if(photoZoneOptionIsChecked){
+            if(count == 0){
                 isMarkerCreated = false
-                count = 1
-                var topUri = stackImage.pop()
-                while(stackImage.isNotEmpty()){
-                    stackImage.pop()
-                }
-                stackImage.push(topUri)
                 standardLatitude = mLastLocation.latitude
                 standardLongitude = mLastLocation.longitude
+                count++
+            }else {
+                presentLatitude = mLastLocation.latitude
+                presentLongitude = mLastLocation.longitude
+
+                val dLat = Math.toRadians(presentLatitude - standardLatitude)
+                val dLon = Math.toRadians(presentLongitude - standardLongitude)
+
+                val a = sin(dLat / 2).pow(2.0) + sin(dLon / 2).pow(2.0) * cos(Math.toRadians(presentLatitude)) * cos(Math.toRadians(standardLatitude))
+                val c = 2 * asin(sqrt(a))
+                val distance =  (numberToCalculateDistance * c).toInt()
+
+                if(distance <= 100){
+                    count++
+                }else{
+                    isMarkerCreated = false
+                    count = 1
+                    var topUri = stackImage.pop()
+                    while(stackImage.isNotEmpty()){
+                        stackImage.pop()
+                        Log.d("checkIfitPopped","Popped!")
+                    }
+                    stackImage.push(topUri)
+                    standardLatitude = mLastLocation.latitude
+                    standardLongitude = mLastLocation.longitude
+                }
+            }
+
+
+
+            if(count > 5 && !isMarkerCreated){
+                /*todo (standardLatitude, standardLongitude)에 photoZone tag 를 달은 마커를 생성
+                 내 생각엔 마커에 tag를 저장할 필요가 있는데 이건 어떻게 할까 그 diary 저장한 거기에 tag 도 같이 저장할 수 있나
+                 포토존 태그를 달면 사진 uri도 저장해야해서 marker 이름으로 폴더를 하나 만드는게 좋아보임
+                 그니까 userID -> 날짜 -> marker이름 -> tag, uri, text 이런식
+                 현시점에서 바로 보여줄 필요 없음(naverMap 이랑 일일히 연결하기 귀찮을거 같음)
+                 그냥 DB Marker 에 넣어만 두고 나중에 불러올때만 나타나도록 해주세요 */
+                isMarkerCreated = true
+                // 메인에서 받아온 오늘의 날짜
+                var day = intent.getStringExtra("day")
+                var groupID = intent.getStringExtra("groupID")
+
+                val storage = FirebaseStorage.getInstance()
+
+                // 위치 값 토대로, 포토존으로 만들어진 마커에 대한 정보를 꾸린다.
+                var tag = "photo"
+                var wrote = 0
+                val marker = hashMapOf(
+                    "tag" to tag,
+                    "Latitude" to standardLatitude,
+                    "Longitude" to standardLongitude,
+                    "wrote" to wrote
+                )
+                // 마커를 특정하기 위해, 위치정보를 토대로 마커의 이름을 만든다.
+                var docName = "$standardLatitude:$standardLongitude"
+
+                fileName = "${groupID}:photo/$day:$standardLatitude:$standardLongitude"
+
+                imageCount = 0
+                while(stackImage.isNotEmpty()){
+                    Log.d("stackCheck1","$stackImage")
+                    var topImageUri = stackImage.pop()
+                    Log.d("topImageUri","$topImageUri")
+                    storage.getReference().child("image").child(fileName).child(imageCount.toString())
+                        .putFile(topImageUri)
+                    imageCount++
+                }
+
+
+                db.collection(groupID.toString())
+                    .document(day.toString())
+                    .collection("marker")
+                    .document(docName)
+                    .set(marker, SetOptions.merge())
+                    .addOnSuccessListener {
+                        Log.d("Mylog", "사진 마커 저장 완료!")
+                    }
+                    .addOnFailureListener { e ->
+                        Log.w(
+                            "MyLog",
+                            "사진 마커 저장에 실패함!",
+                            e
+                        )
+                    }
+            }else if(count > 5 && isMarkerCreated){
+                val storage = FirebaseStorage.getInstance()
+
+                if(stackImage.isNotEmpty()){
+                    Log.d("stackCheck2","$stackImage")
+                    var topImageUri = stackImage.pop()
+                    storage.getReference().child("image").child(fileName).child(imageCount.toString())
+                        .putFile(topImageUri)
+                    Log.d("topImageUri2","$topImageUri")
+                }
+
             }
         }
 
-
-
-        if(count > 5 && !isMarkerCreated){
-            /*todo (standardLatitude, standardLongitude)에 photoZone tag 를 달은 마커를 생성
-             내 생각엔 마커에 tag를 저장할 필요가 있는데 이건 어떻게 할까 그 diary 저장한 거기에 tag 도 같이 저장할 수 있나
-             포토존 태그를 달면 사진 uri도 저장해야해서 marker 이름으로 폴더를 하나 만드는게 좋아보임
-             그니까 userID -> 날짜 -> marker이름 -> tag, uri, text 이런식
-             현시점에서 바로 보여줄 필요 없음(naverMap 이랑 일일히 연결하기 귀찮을거 같음)
-             그냥 DB Marker 에 넣어만 두고 나중에 불러올때만 나타나도록 해주세요 */
-            isMarkerCreated = true
-            // 메인에서 받아온 오늘의 날짜
-            var day = intent.getStringExtra("day")
-            var groupID = intent.getStringExtra("groupID")
-
-            val storage = FirebaseStorage.getInstance()
-
-            // 위치 값 토대로, 포토존으로 만들어진 마커에 대한 정보를 꾸린다.
-            var tag = "photo"
-            var wrote = 0
-            val marker = hashMapOf(
-                "tag" to tag,
-                "Latitude" to standardLatitude,
-                "Longitude" to standardLongitude,
-                "wrote" to wrote
-            )
-            // 마커를 특정하기 위해, 위치정보를 토대로 마커의 이름을 만든다.
-            var docName = "$standardLatitude:$standardLongitude"
-
-            fileName = "${groupID}:photo/$day:$standardLatitude:$standardLongitude"
-
-            imageCount = 0
-            while(stackImage.isNotEmpty()){
-                var topImageUri = stackImage.pop()
-                Log.d("topImageUri","$topImageUri")
-                storage.getReference().child("image").child(fileName).child(imageCount.toString())
-                    .putFile(topImageUri)
-                imageCount++
-            }
-
-
-            db.collection(groupID.toString())
-                .document(day.toString())
-                .collection("marker")
-                .document(docName)
-                .set(marker, SetOptions.merge())
-                .addOnSuccessListener {
-                    Log.d("Mylog", "사진 마커 저장 완료!")
-                }
-                .addOnFailureListener { e ->
-                    Log.w(
-                        "MyLog",
-                        "사진 마커 저장에 실패함!",
-                        e
-                    )
-                }
-        }else if(count > 5 && isMarkerCreated){
-            val storage = FirebaseStorage.getInstance()
-
-            if(stackImage.isNotEmpty()){
-                var topImageUri = stackImage.pop()
-                storage.getReference().child("image").child(fileName).child(imageCount.toString())
-                    .putFile(topImageUri)
-                Log.d("topImageUri2","$topImageUri")
-            }
-
-        }
 
     }
 
@@ -321,9 +332,7 @@ class CameraActivity : AppCompatActivity() {
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val savedUri = Uri.fromFile(photoFile)
                     stackImage.push(savedUri)
-                    var topUri = stackImage.pop()
-                    stackImage.push(savedUri)
-                    Log.d("uriCheck","$topUri")
+                    Log.d("stackCheck","$stackImage")
                 }
             })
     }

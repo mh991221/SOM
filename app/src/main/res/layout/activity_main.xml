@@ -43,6 +43,15 @@
         android:background="@drawable/ic_baseline_menu_book_24"
         android:visibility="gone" />
 
+    <ImageButton
+        android:id="@+id/addMarkerButton"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center_vertical|end"
+        android:src="@drawable/ic_baseline_place_24"
+        android:background="@color/sign_up_background"
+        android:visibility="gone"/>
+
     <LinearLayout
         android:background="#EFCBCB"
         android:layout_width="wrap_content"
@@ -86,28 +95,6 @@
 
             <ToggleButton
                 android:id="@+id/placeToggleButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="2dp"
-                android:textOff="보기"
-                android:textOn="숨기기"/>
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_marginStart="2dp"
-                android:text="결제마커"
-                android:layout_width="wrap_content"
-                android:layout_height="25dp"/>
-
-            <ToggleButton
-                android:id="@+id/paymentToggleButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="2dp"
