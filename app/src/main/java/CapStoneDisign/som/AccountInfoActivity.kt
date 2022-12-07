@@ -64,6 +64,10 @@ class AccountInfoActivity : AppCompatActivity() {
         Firebase.database.reference.child(DB_GROUPS)
     }
 
+    private val countOfDateTextView: TextView by lazy{
+        findViewById(R.id.countOfDateTextView)
+    }
+
     private val accountInfoImageView :ImageView by lazy{
         findViewById(R.id.accountInfoImageView)
     }
@@ -115,6 +119,13 @@ class AccountInfoActivity : AppCompatActivity() {
         initGroup()
         initDate()
         initPhoto()
+        initText()
+    }
+
+    private fun initText(){
+        //todo
+        //countOfDateTextView.text = 여기에 만난 document 수 세어서 넣으면 됨!
+        //필요하면 putExtra 활용하면 될듯
     }
 
     private fun initPhoto(){
