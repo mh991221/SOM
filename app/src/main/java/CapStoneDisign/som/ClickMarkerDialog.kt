@@ -45,7 +45,7 @@ class ClickMarkerDialog(context: Context) {
             // 더 쉬운 방법 있으면 바꿔도 됨
 
             var marker = hashMapOf(
-                "dialog" to clickMarkerDialogEditText
+                "dialog" to clickMarkerDialogEditText.text
             )
 
             // 받아온 다큐먼트 이름에 dialog 값 집어넣는다.
@@ -55,7 +55,7 @@ class ClickMarkerDialog(context: Context) {
                 .document("$docName:dialog")
                 .set(marker, SetOptions.merge())
                 .addOnSuccessListener {
-                    Log.d("Mylog", "클릭 마커의 다이어로그 저장 완료!: $clickMarkerDialogEditText")
+                    Log.d("Mylog", "클릭 마커의 다이어로그 저장 완료!: ${clickMarkerDialogEditText.text}")
                 }
                 .addOnFailureListener { e ->
                     Log.w(
