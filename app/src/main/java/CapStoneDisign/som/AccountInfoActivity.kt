@@ -7,6 +7,8 @@ import CapStoneDisign.som.Model.UserModel
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -50,6 +52,9 @@ class AccountInfoActivity : AppCompatActivity() {
         findViewById(R.id.editPhotoButton)
     }
 
+    private val copyButton: Button by lazy{
+        findViewById(R.id.copyButton)
+    }
 
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
@@ -68,6 +73,11 @@ class AccountInfoActivity : AppCompatActivity() {
     private val countOfDateTextView: TextView by lazy{
         findViewById(R.id.countOfDateTextView)
     }
+
+    private val groupIdTextView:TextView by lazy{
+        findViewById(R.id.groupIdTextView)
+    }
+
 
     private val accountInfoImageView :ImageView by lazy{
         findViewById(R.id.accountInfoImageView)
@@ -123,7 +133,13 @@ class AccountInfoActivity : AppCompatActivity() {
         initDate()
         initPhoto()
         initText()
+        initListener()
     }
+
+    private fun initListener(){
+
+    }
+
 
     private fun initText(){
         //todo
@@ -136,6 +152,16 @@ class AccountInfoActivity : AppCompatActivity() {
                 userModel = snapshot.getValue<UserModel>()
 
                 val currentGroup = groupDB.child(userModel?.groupID!!)
+                groupIdTextView.text = userModel?.groupID!!.toString()
+
+                val clipboard: ClipboardManager = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+                val clip = ClipData.newPlainText("label", groupIdTextView.text.toString())
+
+                copyButton.setOnClickListener {
+                    clipboard.setPrimaryClip(clip)
+                    Toast.makeText(this@AccountInfoActivity,"그룹 코드가 복사되었습니다.",Toast.LENGTH_SHORT).show()
+                }
+
                 db.collection(userModel?.groupID.toString())
                     .get()
                     .addOnSuccessListener { snapshot->

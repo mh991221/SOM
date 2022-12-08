@@ -8,6 +8,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.util.Log
 import android.view.Window
 import android.widget.Button
 import android.widget.EditText
@@ -55,23 +56,28 @@ class DateQRDialog(context: Context) {
         dlg.setContentView(R.layout.date_qr_layout)
         dlg.setCancelable(true)
 
-        var groupID: String?=null
-        val currUser = userDB.child(user)
-        currUser.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                userModel = snapshot.getValue<UserModel>()
-                groupID = userModel?.groupID
-            }
 
-            override fun onCancelled(error: DatabaseError) {}
-        })
 
         QRImageView = dlg.findViewById(R.id.QRImageView)
 
         createQRButton = dlg.findViewById(R.id.createQRButton)
         createQRButton.setOnClickListener {
-            QRImageView.setImageBitmap(createQR(groupID))
-            QRImageView.isVisible = true
+            var groupID: String?=null
+            val currUser = userDB.child(user)
+            currUser.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    userModel = snapshot.getValue<UserModel>()
+                    groupID = userModel?.groupID
+                    
+                    QRImageView.setImageBitmap(createQR(groupID))
+                    Log.d("QRGroupID","$groupID")
+                    QRImageView.isVisible = true
+                }
+
+                override fun onCancelled(error: DatabaseError) {}
+            })
+
+
         }
         scanQRButton = dlg.findViewById(R.id.scanQRButton)
         scanQRButton.setOnClickListener {
@@ -79,7 +85,6 @@ class DateQRDialog(context: Context) {
             dlg.dismiss()
         }
         dlg.show()
-
 
     }
     fun setOnOKClickedListener(listener: (String) -> Unit) {

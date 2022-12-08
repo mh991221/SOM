@@ -220,12 +220,10 @@ class CameraActivity : AppCompatActivity() {
 
                 imageCount = 0
                 while(stackImage.isNotEmpty()){
+
                     Log.d("stackCheck1","$stackImage")
-                    var topImageUri = stackImage.pop()
-                    Log.d("topImageUri","$topImageUri")
-                    storage.getReference().child("image").child(fileName).child(imageCount.toString())
-                        .putFile(topImageUri)
-                    imageCount++
+                    storage.reference.child("image").child(fileName).child(imageCount++.toString())
+                        .putFile(stackImage.pop())
                 }
 
 
@@ -247,14 +245,11 @@ class CameraActivity : AppCompatActivity() {
             }else if(count > 5 && isMarkerCreated){
                 val storage = FirebaseStorage.getInstance()
 
-                if(stackImage.isNotEmpty()){
+                while(stackImage.isNotEmpty()){
                     Log.d("stackCheck2","$stackImage")
-                    var topImageUri = stackImage.pop()
-                    storage.getReference().child("image").child(fileName).child(imageCount.toString())
-                        .putFile(topImageUri)
-                    Log.d("topImageUri2","$topImageUri")
+                    storage.reference.child("image").child(fileName).child(imageCount++.toString())
+                        .putFile(stackImage.pop())
                 }
-
             }
         }
 

@@ -70,6 +70,7 @@ class SignUpActivity:AppCompatActivity() {
                         if(task.isSuccessful){
                             userDB.child(auth.currentUser?.uid.orEmpty()).setValue(model)
                             Toast.makeText(this,"회원가입에 성공했습니다. 로그인 버튼을 통해 로그인해주세요", Toast.LENGTH_LONG).show()
+
                             finish()
                         }else{
                             Toast.makeText(this,"이미 가입한 이메일이거나 없는 이메일입니다. 다시 한번 확인해주세요",Toast.LENGTH_LONG).show()

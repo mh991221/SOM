@@ -338,17 +338,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24)
         supportActionBar?.setDisplayShowTitleEnabled(false)
 
-        val currUser = userDB.child(auth.currentUser!!.uid)
-        currUser.addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                userModel = snapshot.getValue<UserModel>()
-                groupID = userModel?.groupID
-
-                Log.d("checking", "${groupID}")
-            }
-
-            override fun onCancelled(error: DatabaseError) {}
-        })
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -357,17 +346,30 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         if (resultCode == Activity.RESULT_OK) {
             when (requestCode) {
                 486486 -> {
-                    Log.d("QRCODEREQUESTED1", "$groupID")
+                    var groupID: String?=null
+                    val currUser = userDB.child(auth.currentUser!!.uid)
+                    currUser.addValueEventListener(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            userModel = snapshot.getValue<UserModel>()
+                            groupID = userModel?.groupID
 
-                    val contents = data!!.getStringExtra("groupID")
-                    Log.d("QRCODEREQUESTED1", "$contents")
-                    if (data!!.getStringExtra("groupID").toString().compareTo(groupID!!) == 0) {
-                        isTracking = 1
-                        Log.d("QRCODEREQUESTED1", "$isTracking")
-                        startTracking()
-                    } else {
-                        Toast.makeText(this, "같은 그룹에 속한 사람이 아닙니다 ㅠㅠ", Toast.LENGTH_SHORT)
-                    }
+                            Log.d("QRCODEREQUESTED1", "$groupID")
+
+                            val contents = data!!.getStringExtra("groupID")
+                            Log.d("QRCODEREQUESTED1", "$contents")
+                            if (contents.toString().compareTo(groupID!!) == 0) {
+                                isTracking = 1
+                                Log.d("QRCODEREQUESTED1", "$isTracking")
+                                startTracking()
+                            } else {
+                                Toast.makeText(this@MainActivity, "같은 그룹에 속한 사람이 아닙니다 ㅠㅠ", Toast.LENGTH_SHORT).show()
+                            }
+
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {}
+                    })
+
                 }
             }
         }
@@ -552,9 +554,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                     if (checkWritingOrNot == 1) {
 
                         // 루트에 값이 있는지 먼저 확인
-                        if (routes[routes.lastIndex] != null) {
+                        if (routes.lastIndex != -1) {
                             // 루트의 마지막 덩어리에 값이 있는지 확인 (뭐 당연히 있겠지..)
-                            if (routes[routes.lastIndex][routes[routes.lastIndex].lastIndex] != null) {
+                            if (routes[routes.lastIndex].lastIndex != -1) {
 
                                 var lat_before = routes[routes.lastIndex][routes[routes.lastIndex].lastIndex].latitude
                                 var long_before = routes[routes.lastIndex][routes[routes.lastIndex].lastIndex].longitude
@@ -748,7 +750,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                             startActivityForResult(intent, 486486)
                         }
                     }
-
                 }
                 // 기록을 시작하기에 앞서 먼저 오늘 날짜의 기록을 DB에서 받아온 뒤에 거기에 기록을 덧붙여 나간다.
                 // 이렇게 하면 앱을 껐다가 다시 켜서 실행해도 이전 기록이 사라지는 일이 없다!!
@@ -1006,277 +1007,291 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     // date를 다큐먼트의 키 값으로 갖는 기록 불러옵니다.
     private fun getMemory(date: String) {
-        db.collection(userModel?.groupID.toString()).document(date)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document.get("route") != null) {
-                    var coord = document.get("route") as MutableList<Double>
-                    Log.d(
-                        "MyTAG",
-                        "DocumentSnapshot data: ${document.id} ${document.get("route")}"
-                    )
-                    // 길 그리기
-                    if (coord.size >= 8) {
-                        memory.clear()
-                        memBuf.clear()
-                        memcolor.clear()
-                        for (i: Int in 0 until coord.size step (2)) {
-                            // 일단 더블형이니까, != 0.0 쓰면 또 부동 소수점 특유의 빡치는 크기비교 나올 거 같아서
-                            // 적당히 우리 나라에 있을 수 없는 좌표인 0.3 정도로 끊어둠. 이정도면 문제 생길 일 없지 않을까?
-                            // 요는, 0.0을 토큰으로 쓰기 위해 이렇게 했다는 것이다.
-                            if (coord[i] >= 0.3 || coord[i] <= -0.3) {
-                                // memory.add(LatLng(coord[i], coord[i + 1]))
-                                // 1. 0,0이 아닐 경우, 즉, 그려야 하는 좌표값일 경우
-                                // memory에 아무것도 없으면 리스트 하나 만들어서 넣고,
-                                // 뭐라도 하나 있으면 제일 뒤의 리스트에 값 넣는다.
-                                memBuf.add(LatLng(coord[i], coord[i + 1]))
-                            } else {
-                                // 0,0이 나왔을 경우, 즉, 리스트를 끊어줘야 할 경우
-                                if (memBuf.size >= 3) {
-                                    memory.add(mutableListOf<LatLng>())
-                                    memory[memory.lastIndex].addAll(memBuf)
-                                    memBuf.clear()
-                                    memcolor.add(
-                                        MultipartPathOverlay.ColorPart(
-                                            Color.RED,
-                                            Color.WHITE,
-                                            Color.GRAY,
-                                            Color.LTGRAY
-                                        )
-                                    )
+
+        val currUser = userDB.child(auth.currentUser!!.uid)
+        currUser.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                userModel = snapshot.getValue<UserModel>()
+                groupID = userModel?.groupID
+
+                db.collection(userModel?.groupID.toString()).document(date)
+                    .get()
+                    .addOnSuccessListener { document ->
+                        if (document.get("route") != null) {
+                            var coord = document.get("route") as MutableList<Double>
+                            Log.d(
+                                "MyTAG",
+                                "DocumentSnapshot data: ${document.id} ${document.get("route")}"
+                            )
+                            // 길 그리기
+                            if (coord.size >= 8) {
+                                memory.clear()
+                                memBuf.clear()
+                                memcolor.clear()
+                                for (i: Int in 0 until coord.size step (2)) {
+                                    // 일단 더블형이니까, != 0.0 쓰면 또 부동 소수점 특유의 빡치는 크기비교 나올 거 같아서
+                                    // 적당히 우리 나라에 있을 수 없는 좌표인 0.3 정도로 끊어둠. 이정도면 문제 생길 일 없지 않을까?
+                                    // 요는, 0.0을 토큰으로 쓰기 위해 이렇게 했다는 것이다.
+                                    if (coord[i] >= 0.3 || coord[i] <= -0.3) {
+                                        // memory.add(LatLng(coord[i], coord[i + 1]))
+                                        // 1. 0,0이 아닐 경우, 즉, 그려야 하는 좌표값일 경우
+                                        // memory에 아무것도 없으면 리스트 하나 만들어서 넣고,
+                                        // 뭐라도 하나 있으면 제일 뒤의 리스트에 값 넣는다.
+                                        memBuf.add(LatLng(coord[i], coord[i + 1]))
+                                    } else {
+                                        // 0,0이 나왔을 경우, 즉, 리스트를 끊어줘야 할 경우
+                                        if (memBuf.size >= 3) {
+                                            memory.add(mutableListOf<LatLng>())
+                                            memory[memory.lastIndex].addAll(memBuf)
+                                            memBuf.clear()
+                                            memcolor.add(
+                                                MultipartPathOverlay.ColorPart(
+                                                    Color.RED,
+                                                    Color.WHITE,
+                                                    Color.GRAY,
+                                                    Color.LTGRAY
+                                                )
+                                            )
+                                        }
+                                    }
                                 }
+                                Log.d(
+                                    "MyTAG",
+                                    "memory data: $memory"
+                                )
+                                path.coordParts = memory
+                                path.colorParts = memcolor
+                                Log.d(
+                                    "MyTAG",
+                                    "찾아보자 오류!"
+                                )
+                                if (path.coordParts.size > 0) {
+                                    path.map = naverMap
+                                }
+                                Log.d(
+                                    "MyTAG",
+                                    "찾아보자 오류!!"
+                                )
                             }
+                        } else {
+                            Log.d("MyTAG", "No such document")
+                            path.map = null
                         }
-                        Log.d(
-                            "MyTAG",
-                            "memory data: $memory"
-                        )
-                        path.coordParts = memory
-                        path.colorParts = memcolor
-                        Log.d(
-                            "MyTAG",
-                            "찾아보자 오류!"
-                        )
-                        if (path.coordParts.size > 0) {
-                            path.map = naverMap
-                        }
-                        Log.d(
-                            "MyTAG",
-                            "찾아보자 오류!!"
-                        )
-                    }
-                } else {
-                    Log.d("MyTAG", "No such document")
-                    path.map = null
-                }
 
-                /*
-                Log.d("MyTAG", "lastIndex ${markers.lastIndex}")
-                for (i: Int in 0..markers.lastIndex) {
-                    markers[i].map = null
-                }
-                markers.clear()
-                if (document.get("marker") != null) {
-                    Log.d("logForMarker","checked")
-                    markerPoints = document.get("marker") as MutableList<Double>
-                    markers.clear()
-                    for (i: Int in 0 until markerPoints.size step(2)) {
-                        markers.add(Marker())
-                        markers[markers.lastIndex].position = LatLng(markerPoints[i], markerPoints[i+1])
-                        markers[markers.lastIndex].map = naverMap
-                        markers[markers.lastIndex].setOnClickListener{
-                            if(it is Marker){
-                                // it.position을 통해 클릭된 마커의 좌표값을 받아오는 것이 가능하다!!
-                                Log.d("mylog","getMemory()에서 실행되는 코드입니당")
-                                Log.d("mylog","마커의 좌표 ${it.position}")
-                                Log.d("mylog","몇 번째로 찍힌 마커인가? ${markerPoints.indexOf(it.position.latitude) / 2}")
-                                Toast.makeText(this,"마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
-                                val intent = Intent(this, DiaryShowDialog::class.java)
-                                Log.d("mylog","넘길 값 한 눈에 보기: "+day+"+${markerPoints.indexOf(it.position.latitude) / 2}")
-                                intent.putExtra("marker",day + "+${markerPoints.indexOf(it.position.latitude) / 2}")
-
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                startActivity(intent)
-
-                            }
-                            true
-                        }
-                    }
-                }
-                */
-
-            }
-            .addOnFailureListener { exception ->
-                Log.d("MyTAG", "get failed with ", exception)
-            }
-
-        // 마커 불러오기
-        db.collection(userModel?.groupID.toString())
-            .document(date)
-            .collection("marker")
-            .get()
-            .addOnSuccessListener { documents ->
-
-                // 현재 그려진 마커들 일단 정리
-                for (i: Int in 0..markers.lastIndex) {
-                    markers[i].map = null
-                }
-                markers.clear()
-                // 불러온 애들 좌표값 받아서 지도에 그리기
-                for (document in documents) {
-                    // 지도에 그릴 마커 하나 추가
-                    markers.add(Marker())
-                    // 현재 다큐먼트의 좌표값 받아서 지도에 그릴 마커의 좌표값으로 적어주기
-                    markers[markers.lastIndex].position = LatLng(
-                        document["Latitude"] as Double,
-                        document["Longitude"] as Double
-                    )
-                    // 마커의 종류에 따라 서로 다른 색의 마커를 만들어준다.
-                    if (document["tag"] as String == "photo") {
-                        // 포토존 마커는 하늘색
-                        markers[markers.lastIndex].icon = MarkerIcons.LIGHTBLUE
-                    } else if (document["tag"] as String == "visited") {
-                        // 방문 마커는 노란색
-                        markers[markers.lastIndex].icon = MarkerIcons.YELLOW
-
-                        // 방문 마커라면, 추가적으로 몇 초 동안 머물렀는지도 같이 정보를 저장해둔다.
-                        markers[markers.lastIndex].subCaptionRequestedWidth =
-                            (document["time"] as Long).toInt()
-                    } else if (document["tag"] as String == "payment") {
-                        // 결제 마커는 빨간색
-                        markers[markers.lastIndex].icon = MarkerIcons.RED
-                    } else if (document["tag"] as String == "clicked") {
-                        // 클릭 마커는 초록색
-                        markers[markers.lastIndex].icon = MarkerIcons.GREEN
-
-                        // 클릭 마커에는 달아둔 다이어로그도 (값이 있으면) 같이 불러온다.
                         /*
-                        db.collection(userModel?.groupID.toString())
-                            .document(date)
-                            .collection("marker")
-                            .document("${document["Latitude"]}:${document["Longitude"]}:dialog")
-                            .get()
-                            .addOnSuccessListener { dialog->
-                                if (dialog != null) {
-                                    markers[markers.lastIndex].captionText = dialog["dialog"] as String
+                        Log.d("MyTAG", "lastIndex ${markers.lastIndex}")
+                        for (i: Int in 0..markers.lastIndex) {
+                            markers[i].map = null
+                        }
+                        markers.clear()
+                        if (document.get("marker") != null) {
+                            Log.d("logForMarker","checked")
+                            markerPoints = document.get("marker") as MutableList<Double>
+                            markers.clear()
+                            for (i: Int in 0 until markerPoints.size step(2)) {
+                                markers.add(Marker())
+                                markers[markers.lastIndex].position = LatLng(markerPoints[i], markerPoints[i+1])
+                                markers[markers.lastIndex].map = naverMap
+                                markers[markers.lastIndex].setOnClickListener{
+                                    if(it is Marker){
+                                        // it.position을 통해 클릭된 마커의 좌표값을 받아오는 것이 가능하다!!
+                                        Log.d("mylog","getMemory()에서 실행되는 코드입니당")
+                                        Log.d("mylog","마커의 좌표 ${it.position}")
+                                        Log.d("mylog","몇 번째로 찍힌 마커인가? ${markerPoints.indexOf(it.position.latitude) / 2}")
+                                        Toast.makeText(this,"마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
+                                        val intent = Intent(this, DiaryShowDialog::class.java)
+                                        Log.d("mylog","넘길 값 한 눈에 보기: "+day+"+${markerPoints.indexOf(it.position.latitude) / 2}")
+                                        intent.putExtra("marker",day + "+${markerPoints.indexOf(it.position.latitude) / 2}")
+
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                        startActivity(intent)
+
+                                    }
+                                    true
                                 }
                             }
-                         */
-                        if (document["dialog"] != null) {
-                            markers[markers.lastIndex].captionText = document["dialog"] as String
                         }
+                        */
+
                     }
-                    // 편집되었는지의 여부를 캡션으로 해볼까? " "인지 "  "인지로 구분해보는거지.
-                    if (document["wrote"] != null) {
-                        // 마커가 편집된 애일 때
-                        if (document["wrote"] as Long == 1L) {
-                            markers[markers.lastIndex].subCaptionText = "  "
+                    .addOnFailureListener { exception ->
+                        Log.d("MyTAG", "get failed with ", exception)
+                    }
+
+                // 마커 불러오기
+                db.collection(userModel?.groupID.toString())
+                    .document(date)
+                    .collection("marker")
+                    .get()
+                    .addOnSuccessListener { documents ->
+
+                        // 현재 그려진 마커들 일단 정리
+                        for (i: Int in 0..markers.lastIndex) {
+                            markers[i].map = null
                         }
-                        // 마커가 편집 안 된 애일 때
-                        else if (document["wrote"] as Long == 1L) {
-                            markers[markers.lastIndex].subCaptionText = " "
+                        markers.clear()
+                        // 불러온 애들 좌표값 받아서 지도에 그리기
+                        for (document in documents) {
+                            // 지도에 그릴 마커 하나 추가
+                            markers.add(Marker())
+                            // 현재 다큐먼트의 좌표값 받아서 지도에 그릴 마커의 좌표값으로 적어주기
+                            markers[markers.lastIndex].position = LatLng(
+                                document["Latitude"] as Double,
+                                document["Longitude"] as Double
+                            )
+                            // 마커의 종류에 따라 서로 다른 색의 마커를 만들어준다.
+                            if (document["tag"] as String == "photo") {
+                                // 포토존 마커는 하늘색
+                                markers[markers.lastIndex].icon = MarkerIcons.LIGHTBLUE
+                            } else if (document["tag"] as String == "visited") {
+                                // 방문 마커는 노란색
+                                markers[markers.lastIndex].icon = MarkerIcons.YELLOW
+
+                                // 방문 마커라면, 추가적으로 몇 초 동안 머물렀는지도 같이 정보를 저장해둔다.
+                                markers[markers.lastIndex].subCaptionRequestedWidth =
+                                    (document["time"] as Long).toInt()
+                            } else if (document["tag"] as String == "payment") {
+                                // 결제 마커는 빨간색
+                                markers[markers.lastIndex].icon = MarkerIcons.RED
+                            } else if (document["tag"] as String == "clicked") {
+                                // 클릭 마커는 초록색
+                                markers[markers.lastIndex].icon = MarkerIcons.GREEN
+
+                                // 클릭 마커에는 달아둔 다이어로그도 (값이 있으면) 같이 불러온다.
+                                /*
+                                db.collection(userModel?.groupID.toString())
+                                    .document(date)
+                                    .collection("marker")
+                                    .document("${document["Latitude"]}:${document["Longitude"]}:dialog")
+                                    .get()
+                                    .addOnSuccessListener { dialog->
+                                        if (dialog != null) {
+                                            markers[markers.lastIndex].captionText = dialog["dialog"] as String
+                                        }
+                                    }
+                                 */
+                                if (document["dialog"] != null) {
+                                    markers[markers.lastIndex].captionText = document["dialog"] as String
+                                }
+                            }
+                            // 편집되었는지의 여부를 캡션으로 해볼까? " "인지 "  "인지로 구분해보는거지.
+                            if (document["wrote"] != null) {
+                                // 마커가 편집된 애일 때
+                                if (document["wrote"] as Long == 1L) {
+                                    markers[markers.lastIndex].subCaptionText = "  "
+                                }
+                                // 마커가 편집 안 된 애일 때
+                                else if (document["wrote"] as Long == 1L) {
+                                    markers[markers.lastIndex].subCaptionText = " "
+                                }
+                            }
+                            // 마커가 편집 안 된 애일 때
+                            else if (document["wrote"] == null) {
+                                markers[markers.lastIndex].subCaptionText = " "
+                            }
+                            /*
+                            // 좌표값 적어준 후 지도에 그려주기
+                            markers[markers.lastIndex].map = naverMap
+                             */
+                            drawMarker(markers.lastIndex)
+                            // 클릭 리스너 달아주기
+                            markers[markers.lastIndex].setOnClickListener {
+                                if (it is Marker) {
+                                    // it.position을 통해 클릭된 마커의 좌표값을 받아오는 것이 가능하다!!
+                                    Log.d("mylog", "getMemory()에서 실행되는 코드입니당")
+                                    Log.d("mylog", "마커의 좌표 ${it.position}")
+                                    Toast.makeText(this@MainActivity, "마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
+                                    val intent = Intent(this@MainActivity, DiaryShowDialog::class.java)
+                                    // 값 잘 넘기는지 확인용
+                                    Log.d("mylog", " day: $date")
+                                    Log.d("mylog", "Lat: ${it.position.latitude}")
+                                    Log.d("mylog", "Long: ${it.position.longitude}")
+                                    // 날짜 넘겨주기
+                                    intent.putExtra("day", date)
+                                    // 위치 넘겨주기
+                                    intent.putExtra("Lat", it.position.latitude)
+                                    intent.putExtra("Long", it.position.longitude)
+                                    intent.putExtra("mode", isEditMode)
+                                    intent.putExtra("groupID", groupID)
+                                    // 마커 종류 넘겨주기
+                                    // 포토존일 경우 "photo" 넘긴다.
+                                    if (it.icon == MarkerIcons.LIGHTBLUE) {
+                                        intent.putExtra("tag", "photo")
+                                    }
+                                    // 방문마커일 경우 "visited" 넘긴다.
+                                    else if (it.icon == MarkerIcons.YELLOW) {
+                                        intent.putExtra("tag", "visited")
+
+                                        // 방문마커일 경우, 머문 시간도 같이 intent에 넣어서 보내준다.
+                                        intent.putExtra("time", it.subCaptionRequestedWidth)
+                                    }
+                                    // 결제마커일 경우 "payment" 넘긴다.
+                                    else if (it.icon == MarkerIcons.RED) {
+                                        intent.putExtra("tag", "payment")
+                                    }
+                                    // 클릭마커일 경우 "clicked" 넘긴다.
+                                    else if (it.icon == MarkerIcons.GREEN) {
+                                        intent.putExtra("tag", "clicked")
+
+                                        // 클릭마커일 경우, 다이어로그도 같이 intetn에 넣어서 보내준다.
+                                        intent.putExtra("dialog", it.captionText)
+                                    }
+
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                    startActivity(intent)
+
+                                }
+                                true
+                            }
                         }
-                    }
-                    // 마커가 편집 안 된 애일 때
-                    else if (document["wrote"] == null) {
-                        markers[markers.lastIndex].subCaptionText = " "
-                    }
-                    /*
-                    // 좌표값 적어준 후 지도에 그려주기
-                    markers[markers.lastIndex].map = naverMap
-                     */
-                    drawMarker(markers.lastIndex)
-                    // 클릭 리스너 달아주기
-                    markers[markers.lastIndex].setOnClickListener {
-                        if (it is Marker) {
-                            // it.position을 통해 클릭된 마커의 좌표값을 받아오는 것이 가능하다!!
-                            Log.d("mylog", "getMemory()에서 실행되는 코드입니당")
-                            Log.d("mylog", "마커의 좌표 ${it.position}")
-                            Toast.makeText(this, "마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
-                            val intent = Intent(this, DiaryShowDialog::class.java)
-                            // 값 잘 넘기는지 확인용
-                            Log.d("mylog", " day: $date")
-                            Log.d("mylog", "Lat: ${it.position.latitude}")
-                            Log.d("mylog", "Long: ${it.position.longitude}")
-                            // 날짜 넘겨주기
-                            intent.putExtra("day", date)
-                            // 위치 넘겨주기
-                            intent.putExtra("Lat", it.position.latitude)
-                            intent.putExtra("Long", it.position.longitude)
-                            intent.putExtra("mode", isEditMode)
-                            intent.putExtra("groupID", groupID)
-                            // 마커 종류 넘겨주기
-                            // 포토존일 경우 "photo" 넘긴다.
-                            if (it.icon == MarkerIcons.LIGHTBLUE) {
-                                intent.putExtra("tag", "photo")
-                            }
-                            // 방문마커일 경우 "visited" 넘긴다.
-                            else if (it.icon == MarkerIcons.YELLOW) {
-                                intent.putExtra("tag", "visited")
 
-                                // 방문마커일 경우, 머문 시간도 같이 intent에 넣어서 보내준다.
-                                intent.putExtra("time", it.subCaptionRequestedWidth)
-                            }
-                            // 결제마커일 경우 "payment" 넘긴다.
-                            else if (it.icon == MarkerIcons.RED) {
-                                intent.putExtra("tag", "payment")
-                            }
-                            // 클릭마커일 경우 "clicked" 넘긴다.
-                            else if (it.icon == MarkerIcons.GREEN) {
-                                intent.putExtra("tag", "clicked")
 
-                                // 클릭마커일 경우, 다이어로그도 같이 intetn에 넣어서 보내준다.
-                                intent.putExtra("dialog", it.captionText)
-                            }
-
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                            startActivity(intent)
-
+                        /*
+                        Log.d("MyTAG", "lastIndex ${markers.lastIndex}")
+                        for (i: Int in 0..markers.lastIndex) {
+                            markers[i].map = null
                         }
-                        true
-                    }
-                }
+                        markers.clear()
+                        if (document.get("marker") != null) {
+                            Log.d("logForMarker","checked")
+                            markerPoints = document.get("marker") as MutableList<Double>
+                            markers.clear()
+                            for (i: Int in 0 until markerPoints.size step(2)) {
+                                markers.add(Marker())
+                                markers[markers.lastIndex].position = LatLng(markerPoints[i], markerPoints[i+1])
+                                markers[markers.lastIndex].map = naverMap
+                                markers[markers.lastIndex].setOnClickListener{
+                                    if(it is Marker){
+                                        // it.position을 통해 클릭된 마커의 좌표값을 받아오는 것이 가능하다!!
+                                        Log.d("mylog","getMemory()에서 실행되는 코드입니당")
+                                        Log.d("mylog","마커의 좌표 ${it.position}")
+                                        Log.d("mylog","몇 번째로 찍힌 마커인가? ${markerPoints.indexOf(it.position.latitude) / 2}")
+                                        Toast.makeText(this,"마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
+                                        val intent = Intent(this, DiaryShowDialog::class.java)
+                                        Log.d("mylog","넘길 값 한 눈에 보기: "+day+"+${markerPoints.indexOf(it.position.latitude) / 2}")
+                                        intent.putExtra("marker",day + "+${markerPoints.indexOf(it.position.latitude) / 2}")
 
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                                        startActivity(intent)
 
-                /*
-                Log.d("MyTAG", "lastIndex ${markers.lastIndex}")
-                for (i: Int in 0..markers.lastIndex) {
-                    markers[i].map = null
-                }
-                markers.clear()
-                if (document.get("marker") != null) {
-                    Log.d("logForMarker","checked")
-                    markerPoints = document.get("marker") as MutableList<Double>
-                    markers.clear()
-                    for (i: Int in 0 until markerPoints.size step(2)) {
-                        markers.add(Marker())
-                        markers[markers.lastIndex].position = LatLng(markerPoints[i], markerPoints[i+1])
-                        markers[markers.lastIndex].map = naverMap
-                        markers[markers.lastIndex].setOnClickListener{
-                            if(it is Marker){
-                                // it.position을 통해 클릭된 마커의 좌표값을 받아오는 것이 가능하다!!
-                                Log.d("mylog","getMemory()에서 실행되는 코드입니당")
-                                Log.d("mylog","마커의 좌표 ${it.position}")
-                                Log.d("mylog","몇 번째로 찍힌 마커인가? ${markerPoints.indexOf(it.position.latitude) / 2}")
-                                Toast.makeText(this,"마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
-                                val intent = Intent(this, DiaryShowDialog::class.java)
-                                Log.d("mylog","넘길 값 한 눈에 보기: "+day+"+${markerPoints.indexOf(it.position.latitude) / 2}")
-                                intent.putExtra("marker",day + "+${markerPoints.indexOf(it.position.latitude) / 2}")
-
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                                startActivity(intent)
-
+                                    }
+                                    true
+                                }
                             }
-                            true
                         }
+                        */
+
                     }
-                }
-                */
+                    .addOnFailureListener { exception ->
+                        Log.d("MyTAG", "get failed with ", exception)
+                    }
 
             }
-            .addOnFailureListener { exception ->
-                Log.d("MyTAG", "get failed with ", exception)
-            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
+
+
 
 
         Log.d("MyTAG", "여기서 끝나는 건가?!")

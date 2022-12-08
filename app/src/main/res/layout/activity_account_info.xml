@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#C45AFB90"
+    android:background="#C4FFFFFF"
     tools:context=".AccountInfoActivity">
 
     <TextView
@@ -42,13 +42,13 @@
         android:id="@+id/editPhotoButton"
         android:layout_width="50dp"
         android:layout_height="35dp"
+        android:backgroundTint="#C426FD6E"
         android:text="수정"
         android:textSize="11sp"
-        app:layout_constraintStart_toStartOf="@id/accountInfoImageView"
         app:layout_constraintEnd_toEndOf="@id/accountInfoImageView"
+        app:layout_constraintStart_toStartOf="@id/accountInfoImageView"
         app:layout_constraintTop_toBottomOf="@id/accountInfoImageView"
-        android:backgroundTint="#C426FD6E"
-        />
+        tools:ignore="TouchTargetSizeCheck" />
 
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -105,11 +105,12 @@
         android:id="@+id/changeStartDateButton"
         android:layout_width="30dp"
         android:layout_height="20dp"
+        android:layout_marginStart="20dp"
         android:background="@drawable/ic_baseline_calendar_month_24"
+        app:layout_constraintBottom_toBottomOf="@id/startDateTextView"
         app:layout_constraintStart_toEndOf="@id/startDateTextView"
         app:layout_constraintTop_toTopOf="@id/startDateTextView"
-        app:layout_constraintBottom_toBottomOf="@id/startDateTextView"
-        android:layout_marginStart="20dp"/>
+        tools:ignore="SpeakableTextPresentCheck,TouchTargetSizeCheck" />
 
     <TextView
         android:id="@+id/dateTextView"
@@ -202,6 +203,39 @@
         app:layout_constraintTop_toBottomOf="@id/phoneNumberTextView"
         tools:text="count of date" />
 
+    <TextView
+        android:id="@+id/groupIdIsHereTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/groupIdTextView"
+        app:layout_constraintBottom_toBottomOf="@id/groupIdTextView"
+        android:textSize="15sp"
+        android:layout_marginStart="20dp"
+        android:text="Group ID: "/>
+
+    <TextView
+        android:id="@+id/groupIdTextView"
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="30dp"
+        android:fontFamily="@font/ef_diary"
+        android:textSize="16sp"
+        android:layout_marginStart="30dp"
+        app:layout_constraintStart_toEndOf="@id/groupIdIsHereTextView"
+        app:layout_constraintTop_toBottomOf="@id/countOfDateTextView"
+        />
+
+    <Button
+        android:id="@+id/copyButton"
+        android:layout_width="80dp"
+        android:layout_height="40dp"
+        app:layout_constraintEnd_toEndOf="@id/groupIdTextView"
+        app:layout_constraintTop_toBottomOf="@id/groupIdTextView"
+        tools:ignore="SpeakableTextPresentCheck"
+        android:backgroundTint="@color/login_button"
+        android:text="copy"/>
+
     <Button
         android:id="@+id/logoutButton"
         android:layout_width="wrap_content"
@@ -220,10 +254,11 @@
         android:id="@+id/accountBackButton"
         android:layout_width="40dp"
         android:layout_height="30dp"
-        android:layout_marginEnd="30dp"
-        android:layout_marginBottom="30dp"
         android:background="@drawable/ic_baseline_keyboard_backspace_24"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

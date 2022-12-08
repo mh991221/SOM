@@ -68,7 +68,7 @@ class LoginActivity:AppCompatActivity() {
         loginButton.setOnClickListener {
             val email = loginEmailEditText.text.toString()
             val password = passwordEditText.text.toString()
-            if(auth.currentUser == null){
+
                 auth.signInWithEmailAndPassword(email,password)
                     .addOnCompleteListener{ task->
                         if(task.isSuccessful){
@@ -80,9 +80,20 @@ class LoginActivity:AppCompatActivity() {
                             Toast.makeText(this,"로그인에 실패했습니다. 이메일이나 패스워드를 확인해주세요",Toast.LENGTH_LONG).show()
                         }
                     }
-            }else{
-                finish()
-            }
+
+            val currentGroup = userDB.child(getCurrentUserID())
+            currentGroup.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+
+                    val userModel = snapshot.getValue<UserModel>()
+                    Log.d("tlqkf","${userModel?.email}, ${userModel?.groupID}")
+                    if (userModel?.groupID != null ) {
+                        finish()
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {}
+            })
         }
     }
 
@@ -96,7 +107,6 @@ class LoginActivity:AppCompatActivity() {
     private fun successLogin(){
         if(auth.currentUser == null){
             Toast.makeText(this,"로그인에 실패했습니다.",Toast.LENGTH_SHORT).show()
-            return
         }
     }
 
@@ -117,7 +127,6 @@ class LoginActivity:AppCompatActivity() {
                     Log.d("tlqkf","${userModel?.email}, ${userModel?.groupID}")
                     dlg.start()
                     count = false
-                    return
                 }
             }
 
