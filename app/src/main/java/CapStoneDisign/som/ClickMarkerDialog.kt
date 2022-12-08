@@ -45,7 +45,7 @@ class ClickMarkerDialog(context: Context) {
             // 더 쉬운 방법 있으면 바꿔도 됨
 
             var marker = hashMapOf(
-                "dialof" to clickMarkerDialogEditText.text.toString()
+                "dialog" to clickMarkerDialogEditText.text.toString()
             )
 
             // 받아온 다큐먼트 이름에 dialog 값 집어넣는다.
