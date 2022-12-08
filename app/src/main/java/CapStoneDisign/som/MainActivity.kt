@@ -1126,6 +1126,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                         markers[markers.lastIndex].icon = MarkerIcons.GREEN
 
                         // 클릭 마커에는 달아둔 다이어로그도 (값이 있으면) 같이 불러온다.
+                        /*
                         db.collection(userModel?.groupID.toString())
                             .document(date)
                             .collection("marker")
@@ -1136,6 +1137,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                     markers[markers.lastIndex].captionText = dialog["dialog"] as String
                                 }
                             }
+                         */
+                        if (document["dialog"] != null) {
+                            markers[markers.lastIndex].captionText = document["dialog"] as String
+                        }
                     }
                     // 편집되었는지의 여부를 캡션으로 해볼까? " "인지 "  "인지로 구분해보는거지.
                     if (document["wrote"] != null) {

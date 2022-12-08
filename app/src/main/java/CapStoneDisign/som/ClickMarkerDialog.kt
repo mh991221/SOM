@@ -44,13 +44,15 @@ class ClickMarkerDialog(context: Context) {
             // 좌표만 있으면 해당 마커에 접근하기는 쉬울거 같아서 이렇게 했는데
             // 더 쉬운 방법 있으면 바꿔도 됨
 
-            var marker = clickMarkerDialogEditText.text
+            var marker = hashMapOf(
+                "dialof" to clickMarkerDialogEditText.text.toString()
+            )
 
             // 받아온 다큐먼트 이름에 dialog 값 집어넣는다.
             db.collection(groupID)
                 .document(LocalDate.now().toString())
                 .collection("marker")
-                .document("$docName:dialog")
+                .document(docName)
                 .set(marker, SetOptions.merge())
                 .addOnSuccessListener {
                     Log.d("Mylog", "클릭 마커의 다이어로그 저장 완료!: ${clickMarkerDialogEditText.text}")
@@ -75,7 +77,7 @@ class ClickMarkerDialog(context: Context) {
             db.collection(groupID)
                 .document(LocalDate.now().toString())
                 .collection("marker")
-                .document("$docName:dialog")
+                .document(docName)
                 .set(marker, SetOptions.merge())
                 .addOnSuccessListener {
                     Log.d("Mylog", "클릭 마커의 다이어로그에 아무것도 안 넣음!: $clickMarkerDialogEditText")
