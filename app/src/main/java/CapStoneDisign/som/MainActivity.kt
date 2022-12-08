@@ -45,8 +45,10 @@ import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.MultipartPathOverlay
 import com.naver.maps.map.overlay.MultipartPathOverlay.ColorPart
+import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.util.FusedLocationSource
 import com.naver.maps.map.util.MarkerIcons
+import com.naver.maps.map.util.MarkerIcons.LIGHTBLUE
 import com.naver.maps.map.widget.LocationButtonView
 import java.time.LocalDate
 import kotlin.math.*
@@ -1140,12 +1142,15 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                 document["Longitude"] as Double
                             )
                             // 마커의 종류에 따라 서로 다른 색의 마커를 만들어준다.
+                            // 추가로, 서로 다른 아이콘을 달아준다!
                             if (document["tag"] as String == "photo") {
-                                // 포토존 마커는 하늘색
-                                markers[markers.lastIndex].icon = MarkerIcons.LIGHTBLUE
+                                // 포토존 마커는 시안색
+                                markers[markers.lastIndex].icon = OverlayImage.fromResource(R.drawable.photo_marker_icon)
+                                markers[markers.lastIndex].iconTintColor = Color.CYAN
                             } else if (document["tag"] as String == "visited") {
                                 // 방문 마커는 노란색
-                                markers[markers.lastIndex].icon = MarkerIcons.YELLOW
+                                markers[markers.lastIndex].icon = OverlayImage.fromResource(R.drawable.visited_marker_icon)
+                                markers[markers.lastIndex].iconTintColor = Color.YELLOW
 
                                 // 방문 마커라면, 추가적으로 몇 초 동안 머물렀는지도 같이 정보를 저장해둔다.
                                 markers[markers.lastIndex].subCaptionRequestedWidth =
@@ -1155,7 +1160,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                 markers[markers.lastIndex].icon = MarkerIcons.RED
                             } else if (document["tag"] as String == "clicked") {
                                 // 클릭 마커는 초록색
-                                markers[markers.lastIndex].icon = MarkerIcons.GREEN
+                                markers[markers.lastIndex].icon = OverlayImage.fromResource(R.drawable.clicked_marker_icon)
+                                markers[markers.lastIndex].iconTintColor = Color.GREEN
 
                                 // 클릭 마커에는 달아둔 다이어로그도 (값이 있으면) 같이 불러온다.
                                 /*
