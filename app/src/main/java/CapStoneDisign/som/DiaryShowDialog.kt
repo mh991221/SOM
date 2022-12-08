@@ -280,6 +280,7 @@ class DiaryShowDialog:AppCompatActivity() {
                 clickMarkerWatchTextView.isVisible = true
 
                 //todo 저장한 메모를 clickMarkerWatchTextView.text 에 넣어주기
+                clickMarkerWatchTextView.text = intent.getStringExtra("dialog")
             }
         }
 

@@ -1200,6 +1200,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                             // 클릭마커일 경우 "clicked" 넘긴다.
                             else if (it.icon == MarkerIcons.GREEN) {
                                 intent.putExtra("tag", "clicked")
+
+                                // 클릭마커일 경우, 다이어로그도 같이 intetn에 넣어서 보내준다.
+                                intent.putExtra("dialog", it.captionText)
                             }
 
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
