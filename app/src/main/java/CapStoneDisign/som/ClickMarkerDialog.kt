@@ -64,6 +64,7 @@ class ClickMarkerDialog(context: Context) {
                         e
                     )
                 }
+            dlg.dismiss()
         }
         clickMarkerDialogCancelButton.setOnClickListener {
             //todo 이거는 메모를 안한건데 이러면 그냥 " "이거 넣어서 아무것도 안나오게 해주세요
@@ -89,6 +90,7 @@ class ClickMarkerDialog(context: Context) {
                         e
                     )
                 }
+            dlg.dismiss()
         }
         dlg.show()
     }

@@ -97,7 +97,7 @@ class CameraActivity : AppCompatActivity() {
             takePhoto()
             startLocationUpdates()
             val sound = MediaActionSound()
-            sound.play(MediaActionSound.SHUTTER_CLICK)
+//            sound.play(MediaActionSound.SHUTTER_CLICK)
         }
 
 
@@ -108,7 +108,7 @@ class CameraActivity : AppCompatActivity() {
 
     private fun startLocationUpdates() {
 
-        //FusedLocationProviderClient의 인스턴스를 생성.
+        //FusedLocationProviderClient 의 인스턴스를 생성.
         mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
             && ActivityCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {

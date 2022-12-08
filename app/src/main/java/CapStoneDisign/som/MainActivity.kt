@@ -16,9 +16,11 @@ import android.os.Looper
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
@@ -272,9 +274,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
         addMarkerButton.setOnClickListener {
 
-
-
-
             // 생성될 마커의 위치값 받아온다.
             var tmp = routes[routes.lastIndex][routes[routes.lastIndex].lastIndex]
             var tmpLat = tmp.latitude
@@ -376,6 +375,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun startTracking() {
+
         if (isTracking == 1) {
             val nav_Menu: Menu = navigationView.menu
             nav_Menu.findItem(R.id.endIcon).isVisible = true
