@@ -295,7 +295,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             //todo 여기에서 ClickMarkerDialog 호출했음
             // 좌표는 tmpLat,tmpLong 그대로 넘겼는데 맞는지 모르겠음
             val dlg = ClickMarkerDialog(this)
-            dlg.start(tmpLat,tmpLong)
 
             // 현재 사용자가 누구인지 확인
             val curruser = userDB.child(auth.currentUser!!.uid)
@@ -304,6 +303,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 @RequiresApi(Build.VERSION_CODES.O)
                 override fun onDataChange(snapshot: DataSnapshot) {
                     userModel = snapshot.getValue<UserModel>()
+
+                    dlg.start(docName, userModel?.groupID.toString())
 
                     //컬렉션: 그룹ID, 다큐먼트: 날짜와 시간, 내용: 경로들
                     db.collection(userModel?.groupID.toString())
@@ -955,7 +956,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                 markers[i].map = null
             }
         } else {
-            if (markers[i].captionText == "  ") {
+            if (markers[i].subCaptionText == "  ") {
                 // 포토존 보겠다고 선언해놨으면 포토존 띄우기
                 if (markers[i].icon == MarkerIcons.LIGHTBLUE && !photoZoneToggleButton.isChecked) {
                     markers[i].map = naverMap
@@ -1113,7 +1114,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                         markers[markers.lastIndex].icon = MarkerIcons.YELLOW
 
                         // 방문 마커라면, 추가적으로 몇 초 동안 머물렀는지도 같이 정보를 저장해둔다.
-                        markers[markers.lastIndex].captionRequestedWidth =
+                        markers[markers.lastIndex].subCaptionRequestedWidth =
                             (document["time"] as Long).toInt()
                     } else if (document["tag"] as String == "payment") {
                         // 결제 마커는 빨간색
@@ -1121,21 +1122,26 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                     } else if (document["tag"] as String == "clicked") {
                         // 클릭 마커는 초록색
                         markers[markers.lastIndex].icon = MarkerIcons.GREEN
+
+                        // 클릭 마커에는 달아둔 다이어로그도 (값이 있으면) 같이 불러온다.
+                        if (document["dialog"] != null) {
+                            markers[markers.lastIndex].captionText = document["dialog"] as String
+                        }
                     }
                     // 편집되었는지의 여부를 캡션으로 해볼까? " "인지 "  "인지로 구분해보는거지.
                     if (document["wrote"] != null) {
                         // 마커가 편집된 애일 때
                         if (document["wrote"] as Long == 1L) {
-                            markers[markers.lastIndex].captionText = "  "
+                            markers[markers.lastIndex].subCaptionText = "  "
                         }
                         // 마커가 편집 안 된 애일 때
                         else if (document["wrote"] as Long == 1L) {
-                            markers[markers.lastIndex].captionText = " "
+                            markers[markers.lastIndex].subCaptionText = " "
                         }
                     }
                     // 마커가 편집 안 된 애일 때
                     else if (document["wrote"] == null) {
-                        markers[markers.lastIndex].captionText = " "
+                        markers[markers.lastIndex].subCaptionText = " "
                     }
                     /*
                     // 좌표값 적어준 후 지도에 그려주기
@@ -1171,7 +1177,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                 intent.putExtra("tag", "visited")
 
                                 // 방문마커일 경우, 머문 시간도 같이 intent에 넣어서 보내준다.
-                                intent.putExtra("time", it.captionRequestedWidth)
+                                intent.putExtra("time", it.subCaptionRequestedWidth)
                             }
                             // 결제마커일 경우 "payment" 넘긴다.
                             else if (it.icon == MarkerIcons.RED) {
