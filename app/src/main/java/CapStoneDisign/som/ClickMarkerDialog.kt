@@ -52,7 +52,7 @@ class ClickMarkerDialog(context: Context) {
             db.collection(groupID)
                 .document(LocalDate.now().toString())
                 .collection("marker")
-                .document(docName)
+                .document("$docName:dialog")
                 .set(marker, SetOptions.merge())
                 .addOnSuccessListener {
                     Log.d("Mylog", "클릭 마커의 다이어로그 저장 완료!: $clickMarkerDialogEditText")
@@ -77,7 +77,7 @@ class ClickMarkerDialog(context: Context) {
             db.collection(groupID)
                 .document(LocalDate.now().toString())
                 .collection("marker")
-                .document(docName)
+                .document("$docName:dialog")
                 .set(marker, SetOptions.merge())
                 .addOnSuccessListener {
                     Log.d("Mylog", "클릭 마커의 다이어로그에 아무것도 안 넣음!: $clickMarkerDialogEditText")

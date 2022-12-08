@@ -551,6 +551,12 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                     Log.d("location1: ", "${location.latitude}, ${location.longitude}")
                     if (checkWritingOrNot == 1) {
 
+                        // 먼저 직전의 위치 정보가 있는지 없는지 판단.
+                        // 만약 직전의 위치 정보가 있다면, 그 위치 정보와 현재 위치 정보를 비교해
+                        // 현재 위치 정보와 직전의 위치 정보가 50이상 차이가 난다면
+                        // 이번 위치 정보는 버리고 반복문을 다시 실행한다.
+
+
                         // 사용자의 현재 위치를 경로에 추가
                         routes[routes.lastIndex].add(LatLng(location.latitude, location.longitude))
 
@@ -1124,9 +1130,16 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                         markers[markers.lastIndex].icon = MarkerIcons.GREEN
 
                         // 클릭 마커에는 달아둔 다이어로그도 (값이 있으면) 같이 불러온다.
-                        if (document["dialog"] != null) {
-                            markers[markers.lastIndex].captionText = document["dialog"] as String
-                        }
+                        db.collection(userModel?.groupID.toString())
+                            .document(date)
+                            .collection("marker")
+                            .document("${document["Latitude"]}:${document["Longitude"]}:dialog")
+                            .get()
+                            .addOnSuccessListener { dialog->
+                                if (dialog != null) {
+                                    markers[markers.lastIndex].captionText = dialog["dialog"] as String
+                                }
+                            }
                     }
                     // 편집되었는지의 여부를 캡션으로 해볼까? " "인지 "  "인지로 구분해보는거지.
                     if (document["wrote"] != null) {
