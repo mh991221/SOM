@@ -4,22 +4,15 @@ import CapStoneDisign.som.Model.GroupModel
 import CapStoneDisign.som.Model.UserModel
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Dialog
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Window
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat.*
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.bumptech.glide.Glide
@@ -36,10 +29,9 @@ import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
-class DiaryShowDialog:AppCompatActivity() {
+class DiaryShowDialog : AppCompatActivity() {
 
     private lateinit var myImageEditButtonInDiary: Button
     private lateinit var myTextEditButtonInDiary: Button
@@ -48,14 +40,13 @@ class DiaryShowDialog:AppCompatActivity() {
     private lateinit var myImageViewInDiary: ImageView
     private lateinit var partnerImageViewInDiary: ImageView
     private lateinit var myDiaryEditTextView: EditText
-    private lateinit var myTextEditCompleteButtonInDiary:Button
+    private lateinit var myTextEditCompleteButtonInDiary: Button
     private lateinit var tagView: TextView
     private lateinit var photoWatchTextView: TextView
     private lateinit var placeWatchTextView: TextView
-    private lateinit var clickMarkerWatchTextView:TextView
+    private lateinit var clickMarkerWatchTextView: TextView
 
     lateinit var storage: FirebaseStorage
-
 
 
     private val auth: FirebaseAuth by lazy {
@@ -67,7 +58,7 @@ class DiaryShowDialog:AppCompatActivity() {
         Firebase.database.reference.child(DBKey.DB_USERS)
     }
 
-    private val groupDB: DatabaseReference by lazy{
+    private val groupDB: DatabaseReference by lazy {
         Firebase.database.reference.child(DBKey.DB_GROUPS)
     }
 
@@ -90,35 +81,35 @@ class DiaryShowDialog:AppCompatActivity() {
 
     }
 
-    private fun initData(){
+    private fun initData() {
         initPhoto()
         initText()
     }
 
-    private fun initPhoto(){
-        var partnerId: String?=null
+    private fun initPhoto() {
+        var partnerId: String? = null
         val curruser = userDB.child(user)
         curruser.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 userModel = snapshot.getValue<UserModel>()
 
                 val currentGroup = groupDB.child(userModel?.groupID!!) // groupId에 접근
-                currentGroup.addValueEventListener(object: ValueEventListener {
+                currentGroup.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         groupModel = snapshot.getValue<GroupModel>()
 
-                        Log.d("checkiing partner","${groupModel?.secondUserID}")
+                        Log.d("checkiing partner", "${groupModel?.secondUserID}")
 
-                        if(user.compareTo(groupModel?.firstUserID!!) == 0){     // 내 id와 대조하여 상대의 id 찾아내기
+                        if (user.compareTo(groupModel?.firstUserID!!) == 0) {     // 내 id와 대조하여 상대의 id 찾아내기
                             partnerId = groupModel?.secondUserID.toString()
-                            Log.d("checkiing partner","${partnerId}")
+                            Log.d("checkiing partner", "${partnerId}")
 
-                        }else{
+                        } else {
                             partnerId = groupModel?.firstUserID.toString()
 
                         }
 
-                        Log.d("checkiing partner","${partnerId}")
+                        Log.d("checkiing partner", "${partnerId}")
                         val storage = FirebaseStorage.getInstance()
                         val storageRef = storage.reference
 
@@ -130,14 +121,16 @@ class DiaryShowDialog:AppCompatActivity() {
                         var fileName = "${user}/${docName}"
                         var fileNameForPartner = "${partnerId!!}/${docName}"
 
-                        storageRef.child("image").child(fileName).downloadUrl.addOnSuccessListener { uri -> //이미지 로드 성공시
+                        storageRef.child("image")
+                            .child(fileName).downloadUrl.addOnSuccessListener { uri -> //이미지 로드 성공시
                             Glide.with(applicationContext)
                                 .load(uri)
                                 .into(myImageViewInDiary)
                         }.addOnFailureListener { //이미지 로드 실패시
                         }
 
-                        storageRef.child("image").child(fileNameForPartner!!).downloadUrl.addOnSuccessListener { uri -> //이미지 로드 성공시
+                        storageRef.child("image")
+                            .child(fileNameForPartner!!).downloadUrl.addOnSuccessListener { uri -> //이미지 로드 성공시
                             Glide.with(applicationContext)
                                 .load(uri)
                                 .into(partnerImageViewInDiary)
@@ -145,15 +138,17 @@ class DiaryShowDialog:AppCompatActivity() {
                         }
 
                     }
+
                     override fun onCancelled(error: DatabaseError) {}
                 })
             }
+
             override fun onCancelled(error: DatabaseError) {}
         })
     }
 
-    private fun initText(){
-        var partnerId: String?=null
+    private fun initText() {
+        var partnerId: String? = null
         val curruser = userDB.child(user)
 
         curruser.addValueEventListener(object : ValueEventListener {
@@ -161,15 +156,15 @@ class DiaryShowDialog:AppCompatActivity() {
                 userModel = snapshot.getValue<UserModel>()
 
                 val currentGroup = groupDB.child(userModel?.groupID!!) // groupId에 접근
-                currentGroup.addValueEventListener(object: ValueEventListener {
+                currentGroup.addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
                         groupModel = snapshot.getValue<GroupModel>()
 
-                        if(user.compareTo(groupModel?.firstUserID!!) == 0){     // 내 id와 대조하여 상대의 id 찾아내기
+                        if (user.compareTo(groupModel?.firstUserID!!) == 0) {     // 내 id와 대조하여 상대의 id 찾아내기
                             partnerId = groupModel?.secondUserID.toString()
-                            Log.d("checkiing partner","${partnerId}")
+                            Log.d("checkiing partner", "${partnerId}")
 
-                        }else{
+                        } else {
                             partnerId = groupModel?.firstUserID.toString()
                         }
 
@@ -194,36 +189,35 @@ class DiaryShowDialog:AppCompatActivity() {
                             .collection("marker")
                             .document(docName)
                             .get()
-                            .addOnSuccessListener{ document ->
+                            .addOnSuccessListener { document ->
                                 // DB에서 myDiaryTextView 받아오기
                                 if (document.get(user) != null) {
                                     myDiaryTextView.text = document.get(user).toString()
-                                }
-                                else {
-                                    Log.d("mylog","$user 에서 myDiaryTextView 못받아왔어용")
+                                } else {
+                                    Log.d("mylog", "$user 에서 myDiaryTextView 못받아왔어용")
                                 }
                                 // DB에서 partnerDiaryTextView 받아오기
                                 if (document.get(partnerId.toString()) != null) {
-                                    partnerDiaryTextView.text = document.get(partnerId.toString()).toString()
-                                }
-                                else {
-                                    Log.d("mylog","$partnerId 에서 partnerDiaryTextView 못받아왔어용")
+                                    partnerDiaryTextView.text =
+                                        document.get(partnerId.toString()).toString()
+                                } else {
+                                    Log.d("mylog", "$partnerId 에서 partnerDiaryTextView 못받아왔어용")
                                 }
                             }
 
 
-
-
                     }
+
                     override fun onCancelled(error: DatabaseError) {}
                 })
             }
+
             override fun onCancelled(error: DatabaseError) {}
         })
     }
 
 
-    private fun initLayout(){
+    private fun initLayout() {
         myTextEditCompleteButtonInDiary = findViewById(R.id.myTextEditCompleteButtonInDiary)
         myTextEditButtonInDiary = findViewById(R.id.myTextEditButtonInDiary)
 
@@ -241,6 +235,7 @@ class DiaryShowDialog:AppCompatActivity() {
         tagView = findViewById(R.id.tagView)
         photoWatchTextView = findViewById(R.id.photoWatchTextView)
         placeWatchTextView = findViewById(R.id.placeWatchTextView)
+
         clickMarkerWatchTextView = findViewById(R.id.clickMarkerWatchTextView)
 
         when (tag) {
@@ -256,7 +251,8 @@ class DiaryShowDialog:AppCompatActivity() {
                 val day = TimeUnit.SECONDS.toDays(time).toInt()
                 val hours = TimeUnit.SECONDS.toHours(time) - day * 24
                 val minute = TimeUnit.SECONDS.toMinutes(time) - TimeUnit.SECONDS.toHours(time) * 60
-                val second = TimeUnit.SECONDS.toSeconds(time) - TimeUnit.SECONDS.toMinutes(time) * 60
+                val second =
+                    TimeUnit.SECONDS.toSeconds(time) - TimeUnit.SECONDS.toMinutes(time) * 60
 
                 var text1 = ""
                 var text2 = ""
@@ -285,18 +281,18 @@ class DiaryShowDialog:AppCompatActivity() {
         }
 
 
-        val isEditMode =  intent.getBooleanExtra("mode",false)
+        val isEditMode = intent.getBooleanExtra("mode", false)
 
-        if(isEditMode){
+        if (isEditMode) {
             myImageEditButtonInDiary.isVisible = true
             myTextEditButtonInDiary.isVisible = true
-        }else{
+        } else {
             myImageEditButtonInDiary.isVisible = false
             myTextEditButtonInDiary.isVisible = false
         }
     }
 
-    private fun initButtonListener(){
+    private fun initButtonListener() {
 
         var day = intent.getStringExtra("day")
         var tmpLat = intent.getDoubleExtra("Lat", 0.0)
@@ -310,22 +306,99 @@ class DiaryShowDialog:AppCompatActivity() {
             val intent = Intent(this, ViewPagerActivity::class.java)
             intent.putExtra("fileName", fileName)
             startActivity(intent)
+        }
+
+        myImageViewInDiary.setOnClickListener {
+            Log.d("MyImageView","clicked")
+            val storage = FirebaseStorage.getInstance()
+            val storageRef = storage.reference
+
+            var day = intent.getStringExtra("day")
+            var tmpLat = intent.getDoubleExtra("Lat", 0.0)
+            var tmpLong = intent.getDoubleExtra("Long", 0.0)
+            var docName = "$day:$tmpLat:$tmpLong"
+
+            var fileName = "${user}/${docName}"
+
+            storageRef.child("image")
+                .child(fileName).downloadUrl.addOnSuccessListener { uri -> //이미지 로드 성공시
+                    val intent = Intent(this@DiaryShowDialog, MarkerImageActivity::class.java)
+                    intent.putExtra("imageUri",uri.toString())
+                    startActivity(intent)
+
+
+//                Glide.with(applicationContext)
+//                    .load(uri)
+//                    .into(uploadedImageView)
+            }.addOnFailureListener { //이미지 로드 실패시
+            }
+        }
+
+        partnerImageViewInDiary.setOnClickListener {
+            var partnerId: String? = null
+            val curruser = userDB.child(user)
+            curruser.addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    userModel = snapshot.getValue<UserModel>()
+
+                    val currentGroup = groupDB.child(userModel?.groupID!!) // groupId에 접근
+                    currentGroup.addValueEventListener(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            groupModel = snapshot.getValue<GroupModel>()
+
+                            Log.d("checkiing partner", "${groupModel?.secondUserID}")
+
+                            if (user.compareTo(groupModel?.firstUserID!!) == 0) {     // 내 id와 대조하여 상대의 id 찾아내기
+                                partnerId = groupModel?.secondUserID.toString()
+                                Log.d("checkiing partner", "${partnerId}")
+
+                            } else {
+                                partnerId = groupModel?.firstUserID.toString()
+                            }
+
+                            val storage = FirebaseStorage.getInstance()
+                            val storageRef = storage.reference
+
+                            var day = intent.getStringExtra("day")
+                            var tmpLat = intent.getDoubleExtra("Lat", 0.0)
+                            var tmpLong = intent.getDoubleExtra("Long", 0.0)
+                            var docName = "$day:$tmpLat:$tmpLong"
+
+                            var fileNameForPartner = "${partnerId!!}/${docName}"
+
+                            storageRef.child("image")
+                                .child(fileNameForPartner!!).downloadUrl.addOnSuccessListener { uri -> //이미지 로드 성공시
+                                    val intent = Intent(this@DiaryShowDialog, MarkerImageActivity::class.java)
+                                    intent.putExtra("imageUri",uri.toString())
+                                    startActivity(intent)
+                                }.addOnFailureListener { //이미지 로드 실패시
+                                }
+                        }
+                        override fun onCancelled(error: DatabaseError) {}
+                    })
+                }
+
+                override fun onCancelled(error: DatabaseError) {}
+            })
 
         }
 
         myImageEditButtonInDiary.setOnClickListener {
-            when{
+            when {
                 ContextCompat.checkSelfPermission(
                     this,
                     android.Manifest.permission.READ_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED ->{
+                ) == PackageManager.PERMISSION_GRANTED -> {
                     navigatePhotos()
                 }
-                shouldShowRequestPermissionRationale(android.Manifest.permission.READ_EXTERNAL_STORAGE) ->{
+                shouldShowRequestPermissionRationale(android.Manifest.permission.READ_EXTERNAL_STORAGE) -> {
                     showPermissionContextPopup()
                 }
-                else ->{
-                    requestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1000)
+                else -> {
+                    requestPermissions(
+                        arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
+                        1000
+                    )
                 }
             }
         }
@@ -339,7 +412,7 @@ class DiaryShowDialog:AppCompatActivity() {
             myTextEditButtonInDiary.isVisible = false
             myTextEditCompleteButtonInDiary.isVisible = true
 
-            Toast.makeText(this,"내용을 수정할 수 있습니다!",Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "내용을 수정할 수 있습니다!", Toast.LENGTH_SHORT).show()
         }
 
         myTextEditCompleteButtonInDiary.setOnClickListener {
@@ -404,37 +477,37 @@ class DiaryShowDialog:AppCompatActivity() {
                 }
             })
 
-            Toast.makeText(this,"내용이 수정되었습니다!",Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "내용이 수정되었습니다!", Toast.LENGTH_SHORT).show()
         }
 
     }
 
-    private fun navigatePhotos(){
-        val intent  = Intent(Intent.ACTION_GET_CONTENT)
+    private fun navigatePhotos() {
+        val intent = Intent(Intent.ACTION_GET_CONTENT)
         intent.type = "image/*"
-        startActivityForResult(intent,1000)
+        startActivityForResult(intent, 1000)
     }
 
     @SuppressLint("SimpleDateFormat")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        storage= FirebaseStorage.getInstance()
-        if(resultCode != Activity.RESULT_OK){
+        storage = FirebaseStorage.getInstance()
+        if (resultCode != Activity.RESULT_OK) {
             return
         }
-        when(requestCode){
-            1000 ->{
-                val selectedImageUri : Uri? = data?.data
+        when (requestCode) {
+            1000 -> {
+                val selectedImageUri: Uri? = data?.data
 
-                if(selectedImageUri != null){
+                if (selectedImageUri != null) {
 
-                    Log.d("checkingPhoto","${selectedImageUri}")
-                    selectedImageUri.let{
+                    Log.d("checkingPhoto", "${selectedImageUri}")
+                    selectedImageUri.let {
 
                         Glide.with(this)
                             .load(selectedImageUri)
                             .fitCenter()
-                            .apply(RequestOptions().override(500,500))
+                            .apply(RequestOptions().override(500, 500))
                             .into(myImageViewInDiary)
                     }
 
@@ -445,32 +518,31 @@ class DiaryShowDialog:AppCompatActivity() {
                     var docName = "$day:$tmpLat:$tmpLong"
 
                     var fileName = "${user}/${docName}"
-                    Log.d("markerFileName",docName)
+                    Log.d("markerFileName", docName)
                     storage.getReference().child("image").child(fileName).delete()
                     storage.getReference().child("image").child(fileName)
                         .putFile(selectedImageUri)
 
-                }else{
-                    Toast.makeText(this,"사진을 가져오지 못했습니다.",Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
                 }
 
             }
-            else ->{
-                Toast.makeText(this,"사진을 가져오지 못했습니다.",Toast.LENGTH_SHORT).show()
+            else -> {
+                Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
 
-
-    private fun showPermissionContextPopup(){
+    private fun showPermissionContextPopup() {
         AlertDialog.Builder(this)
             .setTitle("권한이 필요합니다")
             .setMessage("앱에서 사진을 불러오기 위해 권한이 필요합니다")
-            .setPositiveButton("동의하기") {_, _->
+            .setPositiveButton("동의하기") { _, _ ->
                 requestPermissions(arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1000)
             }
-            .setNegativeButton("취소하기") {_, _-> }
+            .setNegativeButton("취소하기") { _, _ -> }
             .create()
             .show()
     }

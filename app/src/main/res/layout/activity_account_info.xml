@@ -94,7 +94,7 @@
         android:id="@+id/startDateTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -149,7 +149,7 @@
         android:id="@+id/emailTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:fontFamily="@font/ef_diary"
         android:textSize="20sp"
         android:layout_marginStart="30dp"
@@ -172,7 +172,7 @@
         android:id="@+id/phoneNumberTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:fontFamily="@font/ef_diary"
         android:textSize="20sp"
         app:layout_constraintStart_toEndOf="@id/phoneNumberIsHereTextView"
@@ -195,7 +195,7 @@
         android:id="@+id/countOfDateTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:fontFamily="@font/ef_diary"
         android:textSize="20sp"
         android:layout_marginStart="30dp"
@@ -218,7 +218,7 @@
         android:id="@+id/groupIdTextView"
         android:layout_width="250dp"
         android:layout_height="40dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="20dp"
         android:fontFamily="@font/ef_diary"
         android:textSize="16sp"
         android:layout_marginStart="30dp"
@@ -258,6 +258,130 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="SpeakableTextPresentCheck,SpeakableTextPresentCheck,TouchTargetSizeCheck" />
+
+    <ImageView
+        android:id="@+id/oneBookImageView"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        app:layout_constraintStart_toStartOf="@id/countOfDateIsHereTextView"
+        app:layout_constraintBottom_toTopOf="@id/logoutButton"
+        android:src="@drawable/one_book"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/threeBookImageView"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        app:layout_constraintStart_toStartOf="@id/countOfDateIsHereTextView"
+        app:layout_constraintBottom_toTopOf="@id/logoutButton"
+        android:src="@drawable/three_book"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/fiveBookImageView"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        app:layout_constraintStart_toStartOf="@id/countOfDateIsHereTextView"
+        app:layout_constraintBottom_toTopOf="@id/logoutButton"
+        android:src="@drawable/five_book"
+        />
+
+    <ImageView
+        android:id="@+id/tenBookImageView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/logoutButton"
+        android:src="@drawable/book_shelf"
+        android:visibility="gone"/>
+    <ImageView
+        android:id="@+id/twentyBookImageView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="60dp"
+        app:layout_constraintBottom_toTopOf="@id/logoutButton"
+        android:src="@drawable/book_shelf"
+        android:visibility="gone"/>
+    <ImageView
+        android:id="@+id/thirtyBookImageView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="120dp"
+        app:layout_constraintBottom_toTopOf="@id/logoutButton"
+        android:src="@drawable/book_shelf"
+        android:visibility="gone"/>
+    <ImageView
+        android:id="@+id/fortyBookImageView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="180dp"
+        app:layout_constraintBottom_toTopOf="@id/logoutButton"
+        android:src="@drawable/book_shelf"
+        android:visibility="gone"/>
+    <ImageView
+        android:id="@+id/fiftyBookImageView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginStart="240dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/logoutButton"
+        android:src="@drawable/book_shelf"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/sixtyBookImageView"
+        android:layout_width="60dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="20dp"
+        app:layout_constraintStart_toStartOf="@id/tenBookImageView"
+        app:layout_constraintBottom_toTopOf="@id/tenBookImageView"
+        android:src="@drawable/shelf"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/seventyBookImageView"
+        android:layout_width="60dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="20dp"
+        app:layout_constraintStart_toStartOf="@id/twentyBookImageView"
+        app:layout_constraintBottom_toTopOf="@id/twentyBookImageView"
+        android:src="@drawable/shelf"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/eightyBookImageView"
+        android:layout_width="60dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="20dp"
+        app:layout_constraintStart_toStartOf="@id/thirtyBookImageView"
+        app:layout_constraintBottom_toTopOf="@id/thirtyBookImageView"
+        android:src="@drawable/shelf"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/ninetyBookImageView"
+        android:layout_width="60dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="20dp"
+        app:layout_constraintStart_toStartOf="@id/fortyBookImageView"
+        app:layout_constraintBottom_toTopOf="@id/fortyBookImageView"
+        android:src="@drawable/shelf"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/hundredBookImageView"
+        android:layout_width="60dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="20dp"
+        app:layout_constraintStart_toStartOf="@id/fiftyBookImageView"
+        app:layout_constraintBottom_toTopOf="@id/fiftyBookImageView"
+        android:src="@drawable/shelf"
+        android:visibility="gone"/>
+
+
 
 
 

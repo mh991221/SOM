@@ -21,6 +21,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -84,6 +85,46 @@ class AccountInfoActivity : AppCompatActivity() {
     }
     private val accountInfoImageViewPartner :ImageView by lazy{
         findViewById(R.id.accountInfoImageViewPartner)
+    }
+
+    private val oneBookImageView:ImageView by lazy{
+        findViewById(R.id.oneBookImageView)
+    }
+    private val threeBookImageView:ImageView by lazy{
+        findViewById(R.id.threeBookImageView)
+    }
+    private val fiveBookImageView:ImageView by lazy{
+        findViewById(R.id.fiveBookImageView)
+    }
+    private val tenBookImageView:ImageView by lazy{
+        findViewById(R.id.tenBookImageView)
+    }
+    private val twentyBookImageView:ImageView by lazy{
+        findViewById(R.id.twentyBookImageView)
+    }
+    private val thirtyBookImageView:ImageView by lazy{
+        findViewById(R.id.thirtyBookImageView)
+    }
+    private val fortyBookImageView:ImageView by lazy{
+        findViewById(R.id.fortyBookImageView)
+    }
+    private val fiftyBookImageView:ImageView by lazy{
+        findViewById(R.id.fiftyBookImageView)
+    }
+    private val sixtyBookImageView:ImageView by lazy{
+        findViewById(R.id.sixtyBookImageView)
+    }
+    private val seventyBookImageView:ImageView by lazy{
+        findViewById(R.id.seventyBookImageView)
+    }
+    private val eightyBookImageView:ImageView by lazy{
+        findViewById(R.id.eightyBookImageView)
+    }
+    private val ninetyBookImageView:ImageView by lazy{
+        findViewById(R.id.ninetyBookImageView)
+    }
+    private val hundredBookImageView:ImageView by lazy{
+        findViewById(R.id.hundredBookImageView)
     }
 
     var userModel: UserModel? = null
@@ -167,6 +208,85 @@ class AccountInfoActivity : AppCompatActivity() {
                     .addOnSuccessListener { snapshot->
                         Log.d("mylog","${snapshot.size()}")
                         countOfDateTextView.text = snapshot.size().toString()
+
+                        val countOfDateString = countOfDateTextView.text.toString()
+                        val countOfDate = countOfDateString.toInt()
+
+                        if(countOfDate < 3){
+                            oneBookImageView.isVisible = true
+                        }else if(countOfDate < 5){
+                            oneBookImageView.isVisible = false
+                            threeBookImageView.isVisible = true
+                        }else if(countOfDate < 10){
+                            threeBookImageView.isVisible = false
+                            fiveBookImageView.isVisible = true
+                        }else if(countOfDate < 20){
+                            fiveBookImageView.isVisible = false
+                            tenBookImageView.isVisible = true
+                        }else if(countOfDate < 30){
+                            tenBookImageView.isVisible = true
+                            twentyBookImageView.isVisible = true
+                        }else if(countOfDate < 40){
+                            tenBookImageView.isVisible = true
+                            twentyBookImageView.isVisible = true
+                            thirtyBookImageView.isVisible = true
+                        }else if(countOfDate < 50){
+                            tenBookImageView.isVisible = true
+                            twentyBookImageView.isVisible = true
+                            thirtyBookImageView.isVisible = true
+                            fortyBookImageView.isVisible = true
+                        }else if(countOfDate < 60){
+                            tenBookImageView.isVisible = true
+                            twentyBookImageView.isVisible = true
+                            thirtyBookImageView.isVisible = true
+                            fortyBookImageView.isVisible = true
+                            fiftyBookImageView.isVisible = true
+                        }else if(countOfDate < 70){
+                            tenBookImageView.isVisible = true
+                            twentyBookImageView.isVisible = true
+                            thirtyBookImageView.isVisible = true
+                            fortyBookImageView.isVisible = true
+                            fiftyBookImageView.isVisible = true
+                            sixtyBookImageView.isVisible = true
+                        }else if(countOfDate < 80){
+                            tenBookImageView.isVisible = true
+                            twentyBookImageView.isVisible = true
+                            thirtyBookImageView.isVisible = true
+                            fortyBookImageView.isVisible = true
+                            fiftyBookImageView.isVisible = true
+                            sixtyBookImageView.isVisible = true
+                            seventyBookImageView.isVisible = true
+                        }else if(countOfDate < 90){
+                            tenBookImageView.isVisible = true
+                            twentyBookImageView.isVisible = true
+                            thirtyBookImageView.isVisible = true
+                            fortyBookImageView.isVisible = true
+                            fiftyBookImageView.isVisible = true
+                            sixtyBookImageView.isVisible = true
+                            seventyBookImageView.isVisible = true
+                            eightyBookImageView.isVisible = true
+                        }else if(countOfDate < 100){
+                            tenBookImageView.isVisible = true
+                            twentyBookImageView.isVisible = true
+                            thirtyBookImageView.isVisible = true
+                            fortyBookImageView.isVisible = true
+                            fiftyBookImageView.isVisible = true
+                            sixtyBookImageView.isVisible = true
+                            seventyBookImageView.isVisible = true
+                            eightyBookImageView.isVisible = true
+                            ninetyBookImageView.isVisible = true
+                        }else if(countOfDate < 110){
+                            tenBookImageView.isVisible = true
+                            twentyBookImageView.isVisible = true
+                            thirtyBookImageView.isVisible = true
+                            fortyBookImageView.isVisible = true
+                            fiftyBookImageView.isVisible = true
+                            sixtyBookImageView.isVisible = true
+                            seventyBookImageView.isVisible = true
+                            eightyBookImageView.isVisible = true
+                            ninetyBookImageView.isVisible = true
+                            hundredBookImageView.isVisible = true
+                        }
                     }
 
             }

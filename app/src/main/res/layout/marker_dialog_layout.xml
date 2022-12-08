@@ -5,6 +5,8 @@
     android:layout_height="650dp"
     android:background="@drawable/dialog_radius_background">
 
+
+
     <TextView
         android:id="@+id/tagView"
         app:layout_constraintStart_toStartOf="parent"
@@ -144,6 +146,8 @@
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
