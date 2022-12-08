@@ -227,9 +227,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
     private fun initClickListener() {
         editMarkerButton.setOnClickListener {
-            //todo 편집모드
-            // 그 날의 기록에 존재하는 모든 마커 띄우기
-
             isEditMode = true
             editMarkerButton.isVisible = false
             watchMarkerButton.isVisible = true
@@ -240,9 +237,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
 
         watchMarkerButton.setOnClickListener {
-            //todo 보기모드
-            // 그 날의 기록 중 텍스트를 입력한 텍스트만 골라서 띄우기
-
             isEditMode = false
             editMarkerButton.isVisible = true
             watchMarkerButton.isVisible = false
@@ -255,61 +249,32 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
         }
 
         photoZoneToggleButton.setOnClickListener {
-            /*
-            if(photoZoneToggleButton.isChecked) {
-                //todo 포토존 마커 없애기
-            }
-            else{
-                //todo 포토존 마커 보이기
-            }
-            */
+
             for (i: Int in 0..markers.lastIndex) {
                 drawMarker(i)
             }
         }
 
         placeToggleButton.setOnClickListener {
-            /*
-            if(placeToggleButton.isChecked){
-                //todo 장소 마커 없애기
-            }else{
-                //todo 장소 마커 보이기
-            }
-            */
+
             for (i: Int in 0..markers.lastIndex) {
                 drawMarker(i)
             }
         }
 
-//        paymentToggleButton.setOnClickListener {
-//            /*
-//            if(paymentToggleButton.isChecked){
-//                //todo 결제 마커 없애기
-//            }else{
-//                //todo 결제 마커 보이기
-//            }
-//            */
-//            for (i: Int in 0..markers.lastIndex) {
-//                drawMarker(i)
-//            }
-//        }
-
-        // todo 클릭으로 만들어진 애들 보여줄지 선택하는 기능도 추가하는 게 맞지 않나?
         // 일단 내가 임의로 기능 만들어서 넣어봄
         clickedToggleButton.setOnClickListener {
-            /*
-            if(clickedToggleButton.isChecked){
-                //todo 클릭 마커 없애기
-            }else{
-                //todo 클릭 마커 보이기
-            }
-            */
+
             for (i: Int in 0..markers.lastIndex) {
                 drawMarker(i)
             }
         }
 
         addMarkerButton.setOnClickListener {
+
+
+
+
             // 생성될 마커의 위치값 받아온다.
             var tmp = routes[routes.lastIndex][routes[routes.lastIndex].lastIndex]
             var tmpLat = tmp.latitude
@@ -326,6 +291,11 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
             )
             // 다큐먼트를 특정하기 위해, 다큐먼트의 이름을 좌표값을 이용해 만들어낸다.
             var docName = "$tmpLat:$tmpLong"
+
+            //todo 여기에서 ClickMarkerDialog 호출했음
+            // 좌표는 tmpLat,tmpLong 그대로 넘겼는데 맞는지 모르겠음
+            val dlg = ClickMarkerDialog(this)
+            dlg.start(tmpLat,tmpLong)
 
             // 현재 사용자가 누구인지 확인
             val curruser = userDB.child(auth.currentUser!!.uid)
@@ -355,6 +325,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
                 override fun onCancelled(error: DatabaseError) {}
             })
+
+
 
         }
 
@@ -494,14 +466,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                 if(it is Marker){
                                     Toast.makeText(this,"마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
                                     val intent = Intent(this, DiaryShowDialog::class.java)
-                                    // todo 여기 putExtra value 에 날짜 + 마커번호로 된 값을 넘겨주세요
-                                    //마커 번호가 어떤건지 몰라서 여기에 남겨요
-                                    // 날짜는 내가 day 를 전역변수로 선언해서 넣어놨으니까 뒤에 마커번호만 붙여주세요
-                                    // 같은 listener 가 밑에 2개 더 있는데 함수로 따로 빼지 않은 이유는 마커 번호 받아오기가 어려워서임
-                                    // storage 에 사진 저장하는 기능은 다 구현했음
-                                    // text 만 DB에 넣으면 됨 text 도 이 이름으로 저장하고 싶은데 가능?
-                                    // text DB에 넣는거는 DiaryShowDialog 에 todo 로 달아 놓을게
-
                                     Log.d("mylog","기록 시작에서 실행되는 코드입니당")
                                     Log.d("mylog","마커의 좌표 ${it.position}")
                                     Log.d("mylog","몇 번째로 찍힌 마커인가? ${markerPoints.indexOf(it.position.latitude) / 2}")
@@ -623,8 +587,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                 if (distance <= 100) {
                                     count++
                                     Log.d("checking count","$count")
-                                }
-                                if(count>15){
+                                }else{
                                     // 현재는 1초에 한 번씩 gps 받아오니까,
                                     // 일단 실험용으로 10초 동안 머물면 마커 생성되게 해봤음.
                                     // count가 1 올라갈 때마다 1초 지나는 거
@@ -849,7 +812,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                             this,
                             CapStoneDisign.som.DiaryShowDialog::class.java
                         )
-                        // todo 여기 putExtra value 에 날짜 + 마커번호로 된 값을 넘겨주세요
                         Log.d("mylog","마커 생성에서 실행되는 코드입니당")
                         Log.d("mylog","마커의 좌표 ${it.position}")
                         Log.d("mylog","몇 번째로 찍힌 마커인가? ${markerPoints.indexOf(it.position.latitude) / 2}")
@@ -1103,7 +1065,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                 Log.d("mylog","몇 번째로 찍힌 마커인가? ${markerPoints.indexOf(it.position.latitude) / 2}")
                                 Toast.makeText(this,"마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
                                 val intent = Intent(this, DiaryShowDialog::class.java)
-                                // todo 여기 putExtra value 에 날짜 + 마커번호로 된 값을 넘겨주세요
                                 Log.d("mylog","넘길 값 한 눈에 보기: "+day+"+${markerPoints.indexOf(it.position.latitude) / 2}")
                                 intent.putExtra("marker",day + "+${markerPoints.indexOf(it.position.latitude) / 2}")
 
@@ -1189,7 +1150,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                             Log.d("mylog", "마커의 좌표 ${it.position}")
                             Toast.makeText(this, "마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
                             val intent = Intent(this, DiaryShowDialog::class.java)
-                            // todo 여기 putExtra value 에 날짜 + 마커번호로 된 값을 넘겨주세요
                             // 값 잘 넘기는지 확인용
                             Log.d("mylog", " day: $date")
                             Log.d("mylog", "Lat: ${it.position.latitude}")
@@ -1253,7 +1213,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                 Log.d("mylog","몇 번째로 찍힌 마커인가? ${markerPoints.indexOf(it.position.latitude) / 2}")
                                 Toast.makeText(this,"마커가 선택되었습니다", Toast.LENGTH_SHORT).show()
                                 val intent = Intent(this, DiaryShowDialog::class.java)
-                                // todo 여기 putExtra value 에 날짜 + 마커번호로 된 값을 넘겨주세요
                                 Log.d("mylog","넘길 값 한 눈에 보기: "+day+"+${markerPoints.indexOf(it.position.latitude) / 2}")
                                 intent.putExtra("marker",day + "+${markerPoints.indexOf(it.position.latitude) / 2}")
 

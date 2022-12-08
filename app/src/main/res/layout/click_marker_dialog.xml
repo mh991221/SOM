@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="250dp"
+    android:layout_height="150dp"
+    android:orientation="vertical"
+    android:background="@color/sign_up_background">
+
+    <TextView
+        android:text="메모"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:layout_marginTop="15dp"
+        android:id="@+id/clickMarkerDialogEditText"
+        android:hint="메모할 내용을 적어주세요"
+        android:textSize="15sp"
+        android:layout_width="match_parent"
+        android:layout_height="50sp"
+        android:background="#B4F3EE"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/clickMarkerDialogAdmitButton"
+            android:layout_marginStart="40dp"
+            android:layout_width="70dp"
+            android:layout_height="40dp"
+            android:text="확인"/>
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/clickMarkerDialogCancelButton"
+            android:layout_marginStart="40dp"
+            android:layout_width="70dp"
+            android:layout_height="40dp"
+            android:text="취소"/>
+
+    </LinearLayout>
+
+
+</LinearLayout>

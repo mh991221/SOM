@@ -52,6 +52,7 @@ class DiaryShowDialog:AppCompatActivity() {
     private lateinit var tagView: TextView
     private lateinit var photoWatchTextView: TextView
     private lateinit var placeWatchTextView: TextView
+    private lateinit var clickMarkerWatchTextView:TextView
 
     lateinit var storage: FirebaseStorage
 
@@ -240,6 +241,7 @@ class DiaryShowDialog:AppCompatActivity() {
         tagView = findViewById(R.id.tagView)
         photoWatchTextView = findViewById(R.id.photoWatchTextView)
         placeWatchTextView = findViewById(R.id.placeWatchTextView)
+        clickMarkerWatchTextView = findViewById(R.id.clickMarkerWatchTextView)
 
         when (tag) {
             "photo" -> {
@@ -275,6 +277,9 @@ class DiaryShowDialog:AppCompatActivity() {
             }
             "clicked" -> {
                 tagView.text = "클릭 마커"
+                clickMarkerWatchTextView.isVisible = true
+
+                //todo 저장한 메모를 clickMarkerWatchTextView.text 에 넣어주기
             }
         }
 
@@ -302,15 +307,10 @@ class DiaryShowDialog:AppCompatActivity() {
 
         photoWatchTextView.setOnClickListener {
             val intent = Intent(this, ViewPagerActivity::class.java)
-            intent.putExtra("fileName",fileName)
+            intent.putExtra("fileName", fileName)
             startActivity(intent)
 
         }
-
-        placeWatchTextView.setOnClickListener {
-
-        }
-
 
         myImageEditButtonInDiary.setOnClickListener {
             when{
