@@ -551,7 +551,31 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                     Log.d("location1: ", "${location.latitude}, ${location.longitude}")
                     if (checkWritingOrNot == 1) {
 
+                        // 루트에 값이 있는지 먼저 확인
+                        if (routes[routes.lastIndex] != null) {
+                            // 루트의 마지막 덩어리에 값이 있는지 확인 (뭐 당연히 있겠지..)
+                            if (routes[routes.lastIndex][routes[routes.lastIndex].lastIndex] != null) {
 
+                                var lat_before = routes[routes.lastIndex][routes[routes.lastIndex].lastIndex].latitude
+                                var long_before = routes[routes.lastIndex][routes[routes.lastIndex].lastIndex].longitude
+
+                                var lat_now = location.latitude
+                                var long_now = location.longitude
+
+                                val rLat = Math.toRadians(lat_now - lat_before)
+                                val rLon = Math.toRadians(long_now - long_before)
+
+                                val r = sin(rLat / 2).pow(2.0) + sin(rLon / 2).pow(2.0) * cos(
+                                    Math.toRadians(presentLatitude)
+                                ) * cos(Math.toRadians(standardLatitude))
+                                val s = 2 * asin(sqrt(r))
+                                val rDistance = (numberToCalculateDistance * s).toInt()
+
+                                if (rDistance >= 50) {
+                                    continue
+                                }
+                            }
+                        }
 
                         // 사용자의 현재 위치를 경로에 추가
                         routes[routes.lastIndex].add(LatLng(location.latitude, location.longitude))
