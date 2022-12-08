@@ -44,9 +44,7 @@ class ClickMarkerDialog(context: Context) {
             // 좌표만 있으면 해당 마커에 접근하기는 쉬울거 같아서 이렇게 했는데
             // 더 쉬운 방법 있으면 바꿔도 됨
 
-            var marker = hashMapOf(
-                "dialog" to clickMarkerDialogEditText.text
-            )
+            var marker = clickMarkerDialogEditText.text
 
             // 받아온 다큐먼트 이름에 dialog 값 집어넣는다.
             db.collection(groupID)

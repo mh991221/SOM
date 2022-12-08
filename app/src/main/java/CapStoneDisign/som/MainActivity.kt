@@ -551,10 +551,6 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                     Log.d("location1: ", "${location.latitude}, ${location.longitude}")
                     if (checkWritingOrNot == 1) {
 
-                        // 먼저 직전의 위치 정보가 있는지 없는지 판단.
-                        // 만약 직전의 위치 정보가 있다면, 그 위치 정보와 현재 위치 정보를 비교해
-                        // 현재 위치 정보와 직전의 위치 정보가 50이상 차이가 난다면
-                        // 이번 위치 정보는 버리고 반복문을 다시 실행한다.
 
 
                         // 사용자의 현재 위치를 경로에 추가
