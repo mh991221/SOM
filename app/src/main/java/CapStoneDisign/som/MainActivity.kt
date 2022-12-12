@@ -575,9 +575,9 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                 val s = 2 * asin(sqrt(r))
                                 val rDistance = (numberToCalculateDistance * s).toInt()
 
-                                if (rDistance >= 50) {
-                                    continue
-                                }
+//                                if (rDistance >= 50) {
+//                                    continue
+//                                }
                             }
                         }
 
@@ -618,12 +618,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                 if (distance <= 100) {
                                     count++
                                     Log.d("checking count","$count")
-                                }else{
-                                    // 현재는 1초에 한 번씩 gps 받아오니까,
-                                    // 일단 실험용으로 10초 동안 머물면 마커 생성되게 해봤음.
-                                    // count가 1 올라갈 때마다 1초 지나는 거
-                                    if (count > 10 /* && !isCreated*/) {  // 해당 위치에서 이미 마커가 생성된적이 있다면 생성하지 않음
-                                        // isCreated = true                // 따라서 마커를 생성할때 isCreated를 true로 바꿈
+                                    if (count > 10  && !isCreated) {  // 해당 위치에서 이미 마커가 생성된적이 있다면 생성하지 않음
+                                         isCreated = true                // 따라서 마커를 생성할때 isCreated를 true로 바꿈
 
                                         // iscreated는 일단 없앴음 머물다 떠날 때 마커 만든다면 어차피 동시에 여러개 생길 일은 없겠지
 
@@ -676,7 +672,13 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                         })
                                     }
 
-                                    //isCreated = false // 거리가 멀어지면 다시 isCreated를 false로 해서 마커 생성 가능하게 함
+                                }else{
+                                    // 현재는 1초에 한 번씩 gps 받아오니까,
+                                    // 일단 실험용으로 10초 동안 머물면 마커 생성되게 해봤음.
+                                    // count가 1 올라갈 때마다 1초 지나는 거
+
+
+                                    isCreated = false // 거리가 멀어지면 다시 isCreated를 false로 해서 마커 생성 가능하게 함
                                     count = 0
                                     standardLatitude = presentLatitude
                                     standardLongitude = presentLongitude
@@ -1145,12 +1147,10 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                             // 추가로, 서로 다른 아이콘을 달아준다!
                             if (document["tag"] as String == "photo") {
                                 // 포토존 마커는 시안색
-                                markers[markers.lastIndex].icon = OverlayImage.fromResource(R.drawable.photo_marker_icon)
-                                markers[markers.lastIndex].iconTintColor = Color.CYAN
+                                markers[markers.lastIndex].icon = MarkerIcons.LIGHTBLUE
                             } else if (document["tag"] as String == "visited") {
                                 // 방문 마커는 노란색
-                                markers[markers.lastIndex].icon = OverlayImage.fromResource(R.drawable.visited_marker_icon)
-                                markers[markers.lastIndex].iconTintColor = Color.YELLOW
+                                markers[markers.lastIndex].icon = MarkerIcons.YELLOW
 
                                 // 방문 마커라면, 추가적으로 몇 초 동안 머물렀는지도 같이 정보를 저장해둔다.
                                 markers[markers.lastIndex].subCaptionRequestedWidth =
@@ -1160,8 +1160,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                 markers[markers.lastIndex].icon = MarkerIcons.RED
                             } else if (document["tag"] as String == "clicked") {
                                 // 클릭 마커는 초록색
-                                markers[markers.lastIndex].icon = OverlayImage.fromResource(R.drawable.clicked_marker_icon)
-                                markers[markers.lastIndex].iconTintColor = Color.GREEN
+                                markers[markers.lastIndex].icon = MarkerIcons.GREEN
 
                                 // 클릭 마커에는 달아둔 다이어로그도 (값이 있으면) 같이 불러온다.
                                 /*

@@ -284,7 +284,7 @@
         app:layout_constraintStart_toStartOf="@id/countOfDateIsHereTextView"
         app:layout_constraintBottom_toTopOf="@id/logoutButton"
         android:src="@drawable/five_book"
-        />
+        android:visibility="gone"/>
 
     <ImageView
         android:id="@+id/tenBookImageView"
