@@ -412,7 +412,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                     if (memBuf.size >= 3) {
                                         routes.add(mutableListOf<LatLng>())
                                         routes[routes.lastIndex].addAll(memBuf)
-                                        memBuf.clear()
+                                        //memBuf.clear()
                                         memcolor.add(
                                             MultipartPathOverlay.ColorPart(
                                                 Color.RED,
@@ -422,6 +422,8 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                             )
                                         )
                                     }
+                                    // 일단 membuf는 지운다.
+                                    memBuf.clear()
                                 }
                             }
                             Log.d(
@@ -1047,7 +1049,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                         if (memBuf.size >= 3) {
                                             memory.add(mutableListOf<LatLng>())
                                             memory[memory.lastIndex].addAll(memBuf)
-                                            memBuf.clear()
+                                            //memBuf.clear()
                                             memcolor.add(
                                                 MultipartPathOverlay.ColorPart(
                                                     Color.RED,
@@ -1057,6 +1059,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                                 )
                                             )
                                         }
+                                        memBuf.clear()
                                     }
                                 }
                                 Log.d(
