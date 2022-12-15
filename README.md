@@ -19,5 +19,5 @@ There are a few things to be aware of before using it.
 3. this app is using firebase, storage when saving photo and text.
    Therefore, photos may take some time to load. Please wait a second.
    
-4. when you click the date before 12/8, app can stop. Because the algorithm is changed, but the data is remaining in database.
+4. when you click the date before 12/6, app can stop. Because the algorithm is changed, but the data is remaining in database.
    As a result, the application may crash due to the process of loading data that does not match the current algorithm.
