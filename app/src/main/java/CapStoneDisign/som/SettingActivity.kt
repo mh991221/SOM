@@ -137,6 +137,9 @@ class SettingActivity:AppCompatActivity() {
         visitedPlaceSwitch.isChecked = sharedPref.getBoolean("VisitedPlace",true)
 //        paymentPlaceSwitch.isChecked = sharedPref.getBoolean("PaymentPlace",true)
 
+        photoZoneEditText.setText(sharedPref.getInt("PhotoZoneShot",5).toString())
+        visitedPlaceEditText.setText(sharedPref.getInt("placeMinute",30).toString())
+
     }
 
     fun getPhotoZoneIsChecked(): Boolean{
