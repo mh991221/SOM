@@ -154,7 +154,7 @@ class CameraActivity : AppCompatActivity() {
 
         val sharedPref: SharedPreferences = getSharedPreferences("com.Switch.xyz", MODE_PRIVATE)
         photoZoneOptionIsChecked= sharedPref.getBoolean("PhotoZone",true)
-
+        val photoZoneShot = sharedPref.getInt("PhotoZoneShot",5)
         if(photoZoneOptionIsChecked){
             if(count == 0){
                 isMarkerCreated = false
@@ -190,7 +190,7 @@ class CameraActivity : AppCompatActivity() {
 
 
 
-            if(count > 5 && !isMarkerCreated){
+            if(count > photoZoneShot && !isMarkerCreated){
                 /*todo (standardLatitude, standardLongitude)에 photoZone tag 를 달은 마커를 생성
                  내 생각엔 마커에 tag를 저장할 필요가 있는데 이건 어떻게 할까 그 diary 저장한 거기에 tag 도 같이 저장할 수 있나
                  포토존 태그를 달면 사진 uri도 저장해야해서 marker 이름으로 폴더를 하나 만드는게 좋아보임
@@ -242,7 +242,7 @@ class CameraActivity : AppCompatActivity() {
                             e
                         )
                     }
-            }else if(count > 5 && isMarkerCreated){
+            }else if(count > photoZoneShot && isMarkerCreated){
                 val storage = FirebaseStorage.getInstance()
 
                 while(stackImage.isNotEmpty()){

@@ -52,5 +52,45 @@
         app:layout_constraintTop_toBottomOf="@id/photoZoneSwitch"
         tools:ignore="UseSwitchCompatOrMaterialXml,TouchTargetSizeCheck" />
 
+    <TextView
+        android:id="@+id/photoZoneTextView"
+        android:text="포토존 기준: "
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/visitedPlaceSwitch"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="70dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/photoZoneEditText"
+        app:layout_constraintStart_toEndOf="@id/photoZoneTextView"
+        android:layout_marginStart="30dp"
+        android:layout_width="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/photoZoneTextView"
+        app:layout_constraintTop_toTopOf="@id/photoZoneTextView"
+        android:hint="장 수"
+        android:layout_height="wrap_content"/>
+
+    <TextView
+        android:id="@+id/visitedPlaceTextView"
+        android:text="장소 마커 기준: "
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/photoZoneTextView"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="70dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <EditText
+        android:id="@+id/visitedPlaceEditText"
+        app:layout_constraintStart_toEndOf="@id/visitedPlaceTextView"
+        android:layout_marginStart="30dp"
+        android:layout_width="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@id/visitedPlaceTextView"
+        app:layout_constraintTop_toTopOf="@id/visitedPlaceTextView"
+        android:hint="몇 분"
+        android:layout_height="wrap_content"/>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

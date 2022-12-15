@@ -597,7 +597,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
 
                         val sharedPref: SharedPreferences = getSharedPreferences("com.Switch.xyz", MODE_PRIVATE)
                         visitedOptionIsChecked = sharedPref.getBoolean("VisitedPlace",false)
-
+                        val placeMinute = sharedPref.getInt("placeMinute",30)
                         if(visitedOptionIsChecked){
                             // 머문자리 마커 생성 기능
                             if (count == 0) {
@@ -620,7 +620,7 @@ class MainActivity : AppCompatActivity(), OnMapReadyCallback,
                                 if (distance <= 100) {
                                     count++
                                     Log.d("checking count","$count")
-                                    if (count > 10  && !isCreated) {  // 해당 위치에서 이미 마커가 생성된적이 있다면 생성하지 않음
+                                    if (count > placeMinute*60  && !isCreated) {  // 해당 위치에서 이미 마커가 생성된적이 있다면 생성하지 않음
                                          isCreated = true                // 따라서 마커를 생성할때 isCreated를 true로 바꿈
 
                                         // iscreated는 일단 없앴음 머물다 떠날 때 마커 만든다면 어차피 동시에 여러개 생길 일은 없겠지

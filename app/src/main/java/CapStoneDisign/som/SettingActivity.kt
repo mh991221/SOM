@@ -5,7 +5,9 @@ import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.View
+import android.widget.EditText
 import android.widget.Switch
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 
@@ -22,6 +24,14 @@ class SettingActivity:AppCompatActivity() {
 //        findViewById(R.id.paymentPlaceSwitch)
 //    }
 
+    private val photoZoneEditText: EditText by lazy{
+        findViewById(R.id.photoZoneEditText)
+    }
+
+    private val visitedPlaceEditText: EditText by lazy{
+        findViewById(R.id.visitedPlaceEditText)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.option_layout)
@@ -34,6 +44,8 @@ class SettingActivity:AppCompatActivity() {
         savePhotoZoneSwitchState()
         saveVisitedPlaceSwitchState()
         savePaymentPlaceSwitchState()
+        savePhotoZoneShot()
+        saveVisitedPlaceMinute()
         super.onPause()
     }
 
@@ -41,15 +53,47 @@ class SettingActivity:AppCompatActivity() {
         savePhotoZoneSwitchState()
         saveVisitedPlaceSwitchState()
         savePaymentPlaceSwitchState()
+        savePhotoZoneShot()
+        saveVisitedPlaceMinute()
         super.onStop()
     }
     override fun onDestroy() {
         savePhotoZoneSwitchState()
         saveVisitedPlaceSwitchState()
         savePaymentPlaceSwitchState()
+        savePhotoZoneShot()
+        saveVisitedPlaceMinute()
         super.onDestroy()
     }
 
+
+    private fun savePhotoZoneShot(){
+        if(photoZoneEditText.text.isEmpty()){
+            val editor: SharedPreferences.Editor = getSharedPreferences("com.Switch.xyz", MODE_PRIVATE).edit()
+            editor.putInt("PhotoZoneShot",5)
+            editor.apply()
+        }else{
+            val editor: SharedPreferences.Editor = getSharedPreferences("com.Switch.xyz", MODE_PRIVATE).edit()
+            val inputInt :Int = Integer.parseInt(photoZoneEditText.text.toString())
+            editor.putInt("PhotoZoneShot",inputInt)
+            editor.apply()
+            Toast.makeText(this,"$inputInt 장으로 설정 되었습니다.",Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun saveVisitedPlaceMinute(){
+        if(visitedPlaceEditText.text.isEmpty()){
+            val editor: SharedPreferences.Editor = getSharedPreferences("com.Switch.xyz", MODE_PRIVATE).edit()
+            editor.putInt("placeMinute",5)
+            editor.apply()
+        }else{
+            val editor: SharedPreferences.Editor = getSharedPreferences("com.Switch.xyz", MODE_PRIVATE).edit()
+            val inputInt :Int = Integer.parseInt(visitedPlaceEditText.text.toString())
+            editor.putInt("placeMinute",inputInt)
+            editor.apply()
+            Toast.makeText(this,"$inputInt 분으로 설정 되었습니다.",Toast.LENGTH_SHORT).show()
+        }
+    }
 
 
     @SuppressLint("CommitPrefEdits")
@@ -92,6 +136,7 @@ class SettingActivity:AppCompatActivity() {
         photoZoneSwitch.isChecked = sharedPref.getBoolean("PhotoZone", true)
         visitedPlaceSwitch.isChecked = sharedPref.getBoolean("VisitedPlace",true)
 //        paymentPlaceSwitch.isChecked = sharedPref.getBoolean("PaymentPlace",true)
+
     }
 
     fun getPhotoZoneIsChecked(): Boolean{
